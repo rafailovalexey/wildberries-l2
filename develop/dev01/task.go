@@ -20,7 +20,7 @@ import (
 */
 
 func main() {
-	time, err := ntp.Time("0.bevik-ntp.pool.ntp.org")
+	time, err := ntp.Time("0.beevik-ntp.pool.ntp.org")
 
 	if err != nil {
 		log.Printf("%s", err.Error())
