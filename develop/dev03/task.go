@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"reflect"
 	"runtime"
 	"sort"
 	"strings"
@@ -20,7 +21,7 @@ import (
 
 	Поддержать ключи
 
-	-k — указание колонки для сортировки
+	-k — указание колонки для сортировки +
 	-n — сортировать по числовому значению
 	-r — сортировать в обратном порядке +
 	-u — не выводить повторяющиеся строки +
@@ -31,7 +32,7 @@ import (
 
 	-M — сортировать по названию месяца
 	-b — игнорировать хвостовые пробелы +
-	-c — проверять отсортированы ли данные
+	-c — проверять отсортированы ли данные +
 	-h — сортировать по числовому значению с учётом суффиксов
 
 	Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
@@ -41,7 +42,7 @@ func main() {
 	inputFile := flag.String("i", "", "")
 	outputFile := flag.String("o", "", "")
 
-	//key := flag.Bool("k", false, "")
+	//column := flag.Bool("k", false, "")
 	//numeric := flag.String("n", false, "")
 	//reverse := flag.Bool("r", false, "")
 	//unique := flag.Bool("u", false, "")
@@ -89,7 +90,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	sortedStrings := getStringsWithArguments(data, true, true, true)
+	sortedStrings := getSortedStringsWithKeyColumn(data, 2)
 
 	err = writeFileData(outputFilepath, sortedStrings)
 
@@ -190,38 +191,91 @@ func getNewline() string {
 	return "\n"
 }
 
-func getStringsWithArguments(data []string, unique bool, reverse bool, trailing bool) []string {
+func getSortedStrings(data []string) []string {
 	temporary := make([]string, len(data))
 
 	copy(temporary, data)
 
-	if unique {
-		temporary = make([]string, 0, len(data))
+	sort.Strings(temporary)
 
-		dictionary := make(map[string]struct{}, len(data))
+	return temporary
+}
 
-		for _, v := range data {
-			dictionary[v] = struct{}{}
+func getSortedStringsWithKeyColumn(data []string, column int) []string {
+	temporary := make([]string, len(data))
+
+	copy(temporary, data)
+
+	sort.SliceStable(temporary, func(i, j int) bool {
+		columnsI := strings.Fields(temporary[i])
+		columnsJ := strings.Fields(temporary[j])
+
+		if column > 0 && column <= len(columnsI) && column <= len(columnsJ) {
+			valueI := ""
+			valueJ := ""
+
+			if column-1 < len(columnsI) {
+				valueI = columnsI[column-1]
+			}
+
+			if column-1 < len(columnsJ) {
+				valueJ = columnsJ[column-1]
+			}
+
+			return valueI < valueJ
 		}
 
-		for v := range dictionary {
-			temporary = append(temporary, v)
-		}
-	}
+		return temporary[i] < temporary[j]
+	})
 
-	if trailing {
-		for i, v := range temporary {
-			temporary[i] = strings.TrimRightFunc(v, unicode.IsSpace)
-		}
-	}
+	return temporary
+}
 
-	if reverse {
-		sort.Sort(sort.Reverse(sort.StringSlice(temporary)))
-	}
+func getReverseSortedStrings(data []string) []string {
+	temporary := make([]string, len(data))
 
-	if !reverse {
-		sort.Strings(temporary)
+	copy(temporary, data)
+
+	sort.Sort(sort.Reverse(sort.StringSlice(temporary)))
+
+	return temporary
+}
+
+func getStringsWithRemoveTrailingSpace(data []string) []string {
+	temporary := make([]string, len(data))
+
+	copy(temporary, data)
+
+	for i, v := range temporary {
+		temporary[i] = strings.TrimRightFunc(v, unicode.IsSpace)
 	}
 
 	return temporary
+}
+
+func getUniqueStrings(data []string) []string {
+	temporary := make([]string, 0, len(data))
+	dictionary := make(map[string]struct{}, len(data))
+
+	for _, v := range data {
+		dictionary[v] = struct{}{}
+	}
+
+	for v := range dictionary {
+		temporary = append(temporary, v)
+	}
+
+	return temporary
+}
+
+func checkSortedStrings(data []string) bool {
+	temporary := make([]string, len(data))
+
+	copy(temporary, data)
+
+	sort.Strings(temporary)
+
+	check := reflect.DeepEqual(data, temporary)
+
+	return check
 }
