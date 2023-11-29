@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/beevik/ntp"
-	"log"
 	"os"
+	"time"
 )
 
 /*
@@ -20,13 +20,13 @@ import (
 */
 
 func main() {
-	time, err := ntp.Time("0.beevik-ntp.pool.ntp.org")
+	ntpTime, err := ntp.Time("0.beevik-ntp.pool.ntp.org")
 
 	if err != nil {
-		log.Printf("%s", err.Error())
+		fmt.Fprintf(os.Stderr, "ошибка при получении времени: %v\n", err)
 
 		os.Exit(1)
 	}
 
-	fmt.Printf("%v\n", time)
+	fmt.Printf("точное время (с использованием NTP): %s\n", ntpTime.Format(time.RFC3339))
 }
