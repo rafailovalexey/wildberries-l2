@@ -22,7 +22,6 @@ func modifySlice(i []string) {
 ```
 
 Ответ:
-```
-...
+```go
 
 ```
