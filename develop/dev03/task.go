@@ -7,8 +7,10 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"regexp"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -22,7 +24,7 @@ import (
 	Поддержать ключи
 
 	-k — указание колонки для сортировки +
-	-n — сортировать по числовому значению
+	-n — сортировать по числовому значению +
 	-r — сортировать в обратном порядке +
 	-u — не выводить повторяющиеся строки +
 
@@ -30,7 +32,7 @@ import (
 
 	Поддержать ключи
 
-	-M — сортировать по названию месяца
+	-M — сортировать по названию месяца +
 	-b — игнорировать хвостовые пробелы +
 	-c — проверять отсортированы ли данные +
 	-h — сортировать по числовому значению с учётом суффиксов
@@ -43,10 +45,10 @@ func main() {
 	outputFile := flag.String("o", "", "")
 
 	//column := flag.Bool("k", false, "")
-	//numeric := flag.String("n", false, "")
+	//numeric := flag.Int("n", 1, "")
 	//reverse := flag.Bool("r", false, "")
 	//unique := flag.Bool("u", false, "")
-	//
+
 	//month := flag.Bool("M", false, "")
 	//ignore := flag.Bool("b", false, "")
 	//check := flag.Bool("c", false, "")
@@ -60,7 +62,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	inputFilepath, err := getFilepath(*inputFile)
+	inputFilepath, err := GetFilepath(*inputFile)
 
 	if err != nil {
 		fmt.Printf("%v\n", err)
@@ -68,7 +70,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	data, err := getFileData(inputFilepath)
+	data, err := GetFileData(inputFilepath)
 
 	if err != nil {
 		fmt.Printf("%v\n", err)
@@ -82,7 +84,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	outputFilepath, err := getFilepath(*outputFile)
+	outputFilepath, err := GetFilepath(*outputFile)
 
 	if err != nil {
 		fmt.Printf("%v\n", err)
@@ -90,9 +92,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	sortedStrings := getSortedStringsWithKeyColumn(data, 2)
+	sortedStrings := GetSortedStrings(data)
 
-	err = writeFileData(outputFilepath, sortedStrings)
+	err = WriteFileData(outputFilepath, sortedStrings)
 
 	if err != nil {
 		fmt.Printf("%v\n", err)
@@ -111,7 +113,7 @@ func getWorkDirectory() (string, error) {
 	return pwd, nil
 }
 
-func getFilepath(file string) (string, error) {
+func GetFilepath(file string) (string, error) {
 	wd, err := getWorkDirectory()
 
 	if err != nil {
@@ -123,7 +125,7 @@ func getFilepath(file string) (string, error) {
 	return filepath, nil
 }
 
-func getFileData(filepath string) ([]string, error) {
+func GetFileData(filepath string) ([]string, error) {
 	data := make([]string, 0, 10)
 
 	file, err := os.Open(filepath)
@@ -153,7 +155,7 @@ func getFileData(filepath string) ([]string, error) {
 	return data, nil
 }
 
-func writeFileData(filepath string, data []string) error {
+func WriteFileData(filepath string, data []string) error {
 	file, err := os.Create(filepath)
 
 	if err != nil {
@@ -191,7 +193,7 @@ func getNewline() string {
 	return "\n"
 }
 
-func getSortedStrings(data []string) []string {
+func GetSortedStrings(data []string) []string {
 	temporary := make([]string, len(data))
 
 	copy(temporary, data)
@@ -201,7 +203,55 @@ func getSortedStrings(data []string) []string {
 	return temporary
 }
 
-func getSortedStringsWithKeyColumn(data []string, column int) []string {
+func GetReverseSortedStrings(data []string) []string {
+	temporary := make([]string, len(data))
+
+	copy(temporary, data)
+
+	sort.Sort(sort.Reverse(sort.StringSlice(temporary)))
+
+	return temporary
+}
+
+func GetSortedStringsByMonths(data []string) []string {
+	temporary := make([]string, len(data))
+
+	copy(temporary, data)
+
+	months := map[string]int{
+		"January":   1,
+		"February":  2,
+		"March":     3,
+		"April":     4,
+		"May":       5,
+		"June":      6,
+		"July":      7,
+		"August":    8,
+		"September": 9,
+		"October":   10,
+		"November":  11,
+		"December":  12,
+	}
+
+	sort.SliceStable(temporary, func(i, j int) bool {
+		monthI := getMonthValue(temporary[i], months)
+		monthJ := getMonthValue(temporary[j], months)
+
+		return monthI < monthJ
+	})
+
+	return temporary
+}
+
+func getMonthValue(month string, months map[string]int) int {
+	if value, isExist := months[strings.ToLower(month)]; isExist {
+		return value
+	}
+
+	return 99
+}
+
+func GetSortedStringsWithKeyColumn(data []string, column int) []string {
 	temporary := make([]string, len(data))
 
 	copy(temporary, data)
@@ -231,17 +281,67 @@ func getSortedStringsWithKeyColumn(data []string, column int) []string {
 	return temporary
 }
 
-func getReverseSortedStrings(data []string) []string {
+func GetSortedStringsByNumeric(data []string) []string {
 	temporary := make([]string, len(data))
 
 	copy(temporary, data)
 
-	sort.Sort(sort.Reverse(sort.StringSlice(temporary)))
+	sort.SliceStable(temporary, func(i, j int) bool {
+		numI, errI := strconv.Atoi(temporary[i])
+		numJ, errJ := strconv.Atoi(temporary[j])
+
+		if errI == nil && errJ == nil {
+			return numI < numJ
+		}
+
+		return temporary[i] < temporary[j]
+	})
 
 	return temporary
 }
 
-func getStringsWithRemoveTrailingSpace(data []string) []string {
+func GetSortedStringsByNumericWithSuffix(data []string) []string {
+	temporary := make([]string, len(data))
+
+	copy(temporary, data)
+
+	sort.SliceStable(temporary, func(i, j int) bool {
+		valueI, suffixI := getNumericAndSuffix(temporary[i])
+		valueJ, suffixJ := getNumericAndSuffix(temporary[j])
+
+		if valueI < valueJ {
+			return true
+		}
+
+		if valueI > valueJ {
+			return false
+		}
+
+		return suffixI < suffixJ
+	})
+
+	return temporary
+}
+
+func getNumericAndSuffix(input string) (int, string) {
+	match := regexp.MustCompile(`^(\d+)([a-zA-Z]*)$`).FindStringSubmatch(input)
+
+	if len(match) != 3 {
+		return 9999999999, input
+	}
+
+	value, err := strconv.Atoi(match[1])
+
+	if err != nil {
+		return 9999999999, input
+	}
+
+	suffix := match[2]
+
+	return value, suffix
+}
+
+func GetStringsWithRemoveTrailingSpace(data []string) []string {
 	temporary := make([]string, len(data))
 
 	copy(temporary, data)
@@ -253,7 +353,7 @@ func getStringsWithRemoveTrailingSpace(data []string) []string {
 	return temporary
 }
 
-func getUniqueStrings(data []string) []string {
+func GetUniqueStrings(data []string) []string {
 	temporary := make([]string, 0, len(data))
 	dictionary := make(map[string]struct{}, len(data))
 
@@ -268,7 +368,7 @@ func getUniqueStrings(data []string) []string {
 	return temporary
 }
 
-func checkSortedStrings(data []string) bool {
+func CheckSortedStrings(data []string) bool {
 	temporary := make([]string, len(data))
 
 	copy(temporary, data)

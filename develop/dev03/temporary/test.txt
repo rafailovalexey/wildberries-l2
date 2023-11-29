@@ -17,4 +17,11 @@ zxc we
 zxc opip
 asd cnvc
 asd mnmbcx
-
+1 2
+3 2
+1 2
+10 1
+2
+3
+4
+0.5
