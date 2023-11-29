@@ -20,11 +20,13 @@ func asChan(vs ...int) <-chan int {
 
 		close(c)
 	}()
+	
 	return c
 }
 
 func merge(a, b <-chan int) <-chan int {
 	c := make(chan int)
+	
 	go func() {
 		for {
 			select {
@@ -35,14 +37,16 @@ func merge(a, b <-chan int) <-chan int {
 			}
 		}
 	}()
+	
 	return c
 }
 
 func main() {
-
 	a := asChan(1, 3, 5, 7)
-	b := asChan(2, 4 ,6, 8)
-	c := merge(a, b )
+	b := asChan(2, 4, 6, 8)
+	
+	c := merge(a, b)
+	
 	for v := range c {
 		fmt.Println(v)
 	}
