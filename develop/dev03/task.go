@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path"
+	"runtime"
+	"sort"
 )
 
 /*
@@ -34,6 +36,9 @@ import (
 */
 
 func main() {
+	inputFile := flag.String("i", "", "")
+	outputFile := flag.String("o", "", "")
+
 	//key := flag.String("k", "", "")
 	//numeric := flag.String("n", "", "")
 	//reverse := flag.String("r", "", "")
@@ -46,34 +51,149 @@ func main() {
 
 	flag.Parse()
 
-	pwd, _ := os.Getwd()
+	if *inputFile == "" {
+		fmt.Printf("%v\n", "укажите файл для чтения")
 
-	file := flag.Args()[0]
-	filepath := path.Join(pwd, file)
-
-	fmt.Println(filepath)
-
-	openFile, err := os.OpenFile(filepath, os.O_RDWR, 0755)
-
-	if err != nil {
-		log.Fatalf("%v", err)
-
-		return
+		os.Exit(1)
 	}
 
-	defer openFile.Close()
-
-	data := make([]byte, 0, 100)
-
-	n, err := openFile.Read(data)
-
-	fmt.Println(n)
+	inputFilepath, err := getFilepath(*inputFile)
 
 	if err != nil {
-		log.Fatalf("%v", err)
+		fmt.Printf("%v\n", err)
 
-		return
+		os.Exit(1)
 	}
 
-	fmt.Println(data)
+	data, err := getFileData(inputFilepath)
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+
+		os.Exit(1)
+	}
+
+	if *outputFile == "" {
+		fmt.Printf("%v\n", "укажите файл для записи")
+
+		os.Exit(1)
+	}
+
+	outputFilepath, err := getFilepath(*outputFile)
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+
+		os.Exit(1)
+	}
+
+	sortedStrings := getSortedStrings(data)
+
+	err = writeFileData(outputFilepath, sortedStrings)
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+
+		os.Exit(1)
+	}
+}
+
+func getWorkDirectory() (string, error) {
+	pwd, err := os.Getwd()
+
+	if err != nil {
+		return "", err
+	}
+
+	return pwd, nil
+}
+
+func getFilepath(file string) (string, error) {
+	wd, err := getWorkDirectory()
+
+	if err != nil {
+		return "", err
+	}
+
+	filepath := path.Join(wd, file)
+
+	return filepath, nil
+}
+
+func getFileData(filepath string) ([]string, error) {
+	data := make([]string, 0, 100)
+
+	file, err := os.Open(filepath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if line == "" {
+			continue
+		}
+
+		data = append(data, line)
+	}
+
+	if err = scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func writeFileData(filepath string, data []string) error {
+	file, err := os.Create(filepath)
+
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+
+	for _, v := range data {
+		newline := getNewline()
+
+		_, err = writer.WriteString(v + newline)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	err = writer.Flush()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getNewline() string {
+	if runtime.GOOS == "windows" {
+		return "\r\n"
+	}
+
+	return "\n"
+}
+
+func getSortedStrings(data []string) []string {
+	temporary := make([]string, len(data))
+
+	copy(temporary, data)
+
+	sort.Strings(temporary)
+
+	return temporary
 }
