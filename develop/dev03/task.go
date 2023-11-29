@@ -8,6 +8,8 @@ import (
 	"path"
 	"runtime"
 	"sort"
+	"strings"
+	"unicode"
 )
 
 /*
@@ -20,15 +22,15 @@ import (
 
 	-k — указание колонки для сортировки
 	-n — сортировать по числовому значению
-	-r — сортировать в обратном порядке
-	-u — не выводить повторяющиеся строки
+	-r — сортировать в обратном порядке +
+	-u — не выводить повторяющиеся строки +
 
 	Дополнительное
 
 	Поддержать ключи
 
 	-M — сортировать по названию месяца
-	-b — игнорировать хвостовые пробелы
+	-b — игнорировать хвостовые пробелы +
 	-c — проверять отсортированы ли данные
 	-h — сортировать по числовому значению с учётом суффиксов
 
@@ -39,15 +41,15 @@ func main() {
 	inputFile := flag.String("i", "", "")
 	outputFile := flag.String("o", "", "")
 
-	//key := flag.String("k", "", "")
-	//numeric := flag.String("n", "", "")
-	//reverse := flag.String("r", "", "")
-	//unique := flag.String("u", "", "")
+	//key := flag.Bool("k", false, "")
+	//numeric := flag.String("n", false, "")
+	//reverse := flag.Bool("r", false, "")
+	//unique := flag.Bool("u", false, "")
 	//
-	//month := flag.String("M", "", "")
-	//ignore := flag.String("b", "", "")
-	//check := flag.String("c", "", "")
-	//suffix := flag.String("h", "", "")
+	//month := flag.Bool("M", false, "")
+	//ignore := flag.Bool("b", false, "")
+	//check := flag.Bool("c", false, "")
+	//suffix := flag.Bool("h", false, "")
 
 	flag.Parse()
 
@@ -87,7 +89,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	sortedStrings := getSortedStrings(data)
+	sortedStrings := getStringsWithArguments(data, true, true, true)
 
 	err = writeFileData(outputFilepath, sortedStrings)
 
@@ -121,7 +123,7 @@ func getFilepath(file string) (string, error) {
 }
 
 func getFileData(filepath string) ([]string, error) {
-	data := make([]string, 0, 100)
+	data := make([]string, 0, 10)
 
 	file, err := os.Open(filepath)
 
@@ -188,12 +190,38 @@ func getNewline() string {
 	return "\n"
 }
 
-func getSortedStrings(data []string) []string {
+func getStringsWithArguments(data []string, unique bool, reverse bool, trailing bool) []string {
 	temporary := make([]string, len(data))
 
 	copy(temporary, data)
 
-	sort.Strings(temporary)
+	if unique {
+		temporary = make([]string, 0, len(data))
+
+		dictionary := make(map[string]struct{}, len(data))
+
+		for _, v := range data {
+			dictionary[v] = struct{}{}
+		}
+
+		for v := range dictionary {
+			temporary = append(temporary, v)
+		}
+	}
+
+	if trailing {
+		for i, v := range temporary {
+			temporary[i] = strings.TrimRightFunc(v, unicode.IsSpace)
+		}
+	}
+
+	if reverse {
+		sort.Sort(sort.Reverse(sort.StringSlice(temporary)))
+	}
+
+	if !reverse {
+		sort.Strings(temporary)
+	}
 
 	return temporary
 }
