@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+	"sort"
+	"strings"
+)
+
 /*
 	=== Поиск анаграмм по словарю ===
 
@@ -20,5 +26,37 @@ package main
 */
 
 func main() {
+	words := []string{"пятак", "пятка", "тяпка", "листок", "слиток", "столик"}
+	anagrams := FindAnagrams(words)
 
+	for key, value := range anagrams {
+		fmt.Println("множество анаграмм для", key, ":", strings.Join(value, ", "))
+	}
+}
+
+func FindAnagrams(words []string) map[string][]string {
+	anagrams := make(map[string][]string)
+
+	for _, value := range words {
+		word := strings.ToLower(value)
+		chars := strings.Split(word, "")
+
+		sort.Strings(chars)
+
+		sorted := strings.Join(chars, "")
+
+		anagrams[sorted] = append(anagrams[sorted], word)
+	}
+
+	for key, value := range anagrams {
+		if len(value) <= 1 {
+			delete(anagrams, key)
+		} else {
+			sort.Strings(value)
+
+			anagrams[key] = value
+		}
+	}
+
+	return anagrams
 }
