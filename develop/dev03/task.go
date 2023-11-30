@@ -2,11 +2,11 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
 	"path"
-	"reflect"
 	"regexp"
 	"runtime"
 	"sort"
@@ -44,15 +44,15 @@ func main() {
 	inputFile := flag.String("i", "", "")
 	outputFile := flag.String("o", "", "")
 
-	//column := flag.Bool("k", false, "")
-	//numeric := flag.Int("n", 1, "")
-	//reverse := flag.Bool("r", false, "")
-	//unique := flag.Bool("u", false, "")
+	column := flag.Int("k", 0, "")
+	numeric := flag.Bool("n", false, "")
+	reverse := flag.Bool("r", false, "")
+	unique := flag.Bool("u", false, "")
 
-	//month := flag.Bool("M", false, "")
-	//ignore := flag.Bool("b", false, "")
-	//check := flag.Bool("c", false, "")
-	//suffix := flag.Bool("h", false, "")
+	month := flag.Bool("M", false, "")
+	ignore := flag.Bool("b", false, "")
+	check := flag.Bool("c", false, "")
+	suffix := flag.Bool("h", false, "")
 
 	flag.Parse()
 
@@ -92,25 +92,31 @@ func main() {
 		os.Exit(1)
 	}
 
-	sortedStrings := GetSortedStrings(data)
-
-	err = WriteFileData(outputFilepath, sortedStrings)
+	result, err := GetSortedStringsWithArguments(
+		data,
+		*column,
+		*numeric,
+		*reverse,
+		*unique,
+		*month,
+		*ignore,
+		*check,
+		*suffix,
+	)
 
 	if err != nil {
 		fmt.Printf("%v\n", err)
 
 		os.Exit(1)
 	}
-}
 
-func getWorkDirectory() (string, error) {
-	pwd, err := os.Getwd()
+	err = WriteFileData(outputFilepath, result)
 
 	if err != nil {
-		return "", err
-	}
+		fmt.Printf("%v\n", err)
 
-	return pwd, nil
+		os.Exit(1)
+	}
 }
 
 func GetFilepath(file string) (string, error) {
@@ -185,6 +191,119 @@ func WriteFileData(filepath string, data []string) error {
 	return nil
 }
 
+func GetSortedStringsWithArguments(
+	data []string,
+	column int,
+	numeric bool,
+	reverse bool,
+	unique bool,
+	month bool,
+	ignore bool,
+	check bool,
+	suffix bool,
+) ([]string, error) {
+	temporary := make([]string, len(data))
+
+	copy(temporary, data)
+
+	if ignore {
+		temporary = GetStringsWithRemoveTrailingSpace(temporary)
+	}
+
+	function := func(i, j int) bool {
+		if month {
+			return getMonthValue(temporary[i]) < getMonthValue(temporary[j])
+		}
+
+		if column > 0 {
+			return getSortColumnKey(temporary[i], column) < getSortColumnKey(temporary[j], column)
+		}
+
+		return temporary[i] < temporary[j]
+	}
+
+	if numeric {
+		function = func(i, j int) bool {
+			return getNumericValue(temporary[i]) < getNumericValue(temporary[j])
+		}
+	}
+
+	if suffix {
+		function = func(i, j int) bool {
+			valueI, suffixI := getNumericAndSuffix(temporary[i])
+			valueJ, suffixJ := getNumericAndSuffix(temporary[j])
+
+			if valueI < valueJ {
+				return true
+			}
+
+			if valueI > valueJ {
+				return false
+			}
+
+			return suffixI < suffixJ
+		}
+	}
+
+	if unique {
+		temporary = GetUniqueStrings(temporary)
+	}
+
+	sort.SliceStable(temporary, function)
+
+	if reverse {
+		sort.Sort(sort.Reverse(sort.StringSlice(temporary)))
+	}
+
+	if check && !CheckSortedStrings(temporary) {
+		return nil, errors.New("данные не отсортированы")
+	}
+
+	return temporary, nil
+}
+
+func GetStringsWithRemoveTrailingSpace(data []string) []string {
+	temporary := make([]string, len(data))
+
+	copy(temporary, data)
+
+	for i, v := range temporary {
+		temporary[i] = strings.TrimRightFunc(v, unicode.IsSpace)
+	}
+
+	return temporary
+}
+
+func GetUniqueStrings(data []string) []string {
+	temporary := make([]string, 0, len(data))
+	dictionary := make(map[string]struct{}, len(data))
+
+	for _, v := range data {
+		if _, isExist := dictionary[v]; !isExist {
+			dictionary[v] = struct{}{}
+			temporary = append(temporary, v)
+		}
+	}
+
+	return temporary
+}
+
+func CheckSortedStrings(data []string) bool {
+	check := sort.IsSorted(sort.StringSlice(data))
+
+	return check
+}
+
+func getWorkDirectory() (string, error) {
+	pwd, err := os.Getwd()
+
+	if err != nil {
+		return "", err
+	}
+
+	return pwd, nil
+}
+
 func getNewline() string {
 	if runtime.GOOS == "windows" {
 		return "\r\n"
@@ -193,134 +312,14 @@ func getNewline() string {
 	return "\n"
 }
 
-func GetSortedStrings(data []string) []string {
-	temporary := make([]string, len(data))
+func getNumericValue(s string) int {
+	num, err := strconv.Atoi(s)
 
-	copy(temporary, data)
-
-	sort.Strings(temporary)
-
-	return temporary
-}
-
-func GetReverseSortedStrings(data []string) []string {
-	temporary := make([]string, len(data))
-
-	copy(temporary, data)
-
-	sort.Sort(sort.Reverse(sort.StringSlice(temporary)))
-
-	return temporary
-}
-
-func GetSortedStringsByMonths(data []string) []string {
-	temporary := make([]string, len(data))
-
-	copy(temporary, data)
-
-	months := map[string]int{
-		"January":   1,
-		"February":  2,
-		"March":     3,
-		"April":     4,
-		"May":       5,
-		"June":      6,
-		"July":      7,
-		"August":    8,
-		"September": 9,
-		"October":   10,
-		"November":  11,
-		"December":  12,
+	if err != nil {
+		return 999999999
 	}
 
-	sort.SliceStable(temporary, func(i, j int) bool {
-		monthI := getMonthValue(temporary[i], months)
-		monthJ := getMonthValue(temporary[j], months)
-
-		return monthI < monthJ
-	})
-
-	return temporary
-}
-
-func getMonthValue(month string, months map[string]int) int {
-	if value, isExist := months[strings.ToLower(month)]; isExist {
-		return value
-	}
-
-	return 99
-}
-
-func GetSortedStringsWithKeyColumn(data []string, column int) []string {
-	temporary := make([]string, len(data))
-
-	copy(temporary, data)
-
-	sort.SliceStable(temporary, func(i, j int) bool {
-		columnsI := strings.Fields(temporary[i])
-		columnsJ := strings.Fields(temporary[j])
-
-		if column > 0 && column <= len(columnsI) && column <= len(columnsJ) {
-			valueI := ""
-			valueJ := ""
-
-			if column-1 < len(columnsI) {
-				valueI = columnsI[column-1]
-			}
-
-			if column-1 < len(columnsJ) {
-				valueJ = columnsJ[column-1]
-			}
-
-			return valueI < valueJ
-		}
-
-		return temporary[i] < temporary[j]
-	})
-
-	return temporary
-}
-
-func GetSortedStringsByNumeric(data []string) []string {
-	temporary := make([]string, len(data))
-
-	copy(temporary, data)
-
-	sort.SliceStable(temporary, func(i, j int) bool {
-		numI, errI := strconv.Atoi(temporary[i])
-		numJ, errJ := strconv.Atoi(temporary[j])
-
-		if errI == nil && errJ == nil {
-			return numI < numJ
-		}
-
-		return temporary[i] < temporary[j]
-	})
-
-	return temporary
-}
-
-func GetSortedStringsByNumericWithSuffix(data []string) []string {
-	temporary := make([]string, len(data))
-
-	copy(temporary, data)
-
-	sort.SliceStable(temporary, func(i, j int) bool {
-		valueI, suffixI := getNumericAndSuffix(temporary[i])
-		valueJ, suffixJ := getNumericAndSuffix(temporary[j])
-
-		if valueI < valueJ {
-			return true
-		}
-
-		if valueI > valueJ {
-			return false
-		}
-
-		return suffixI < suffixJ
-	})
-
-	return temporary
+	return num
 }
 
 func getNumericAndSuffix(input string) (int, string) {
@@ -341,41 +340,31 @@ func getNumericAndSuffix(input string) (int, string) {
 	return value, suffix
 }
 
-func GetStringsWithRemoveTrailingSpace(data []string) []string {
-	temporary := make([]string, len(data))
+func getSortColumnKey(s string, column int) string {
+	columns := strings.Fields(s)
 
-	copy(temporary, data)
-
-	for i, v := range temporary {
-		temporary[i] = strings.TrimRightFunc(v, unicode.IsSpace)
+	if column > 0 && column <= len(columns) {
+		return columns[column-1]
 	}
 
-	return temporary
+	return s
 }
 
-func GetUniqueStrings(data []string) []string {
-	temporary := make([]string, 0, len(data))
-	dictionary := make(map[string]struct{}, len(data))
-
-	for _, v := range data {
-		dictionary[v] = struct{}{}
+func getMonthValue(month string) int {
+	months := map[string]int{
+		"january":   1,
+		"february":  2,
+		"march":     3,
+		"april":     4,
+		"may":       5,
+		"june":      6,
+		"july":      7,
+		"august":    8,
+		"september": 9,
+		"october":   10,
+		"november":  11,
+		"december":  12,
 	}
 
-	for v := range dictionary {
-		temporary = append(temporary, v)
-	}
-
-	return temporary
-}
-
-func CheckSortedStrings(data []string) bool {
-	temporary := make([]string, len(data))
-
-	copy(temporary, data)
-
-	sort.Strings(temporary)
-
-	check := reflect.DeepEqual(data, temporary)
-
-	return check
+	return months[strings.ToLower(month)]
 }
