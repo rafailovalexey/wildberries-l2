@@ -70,7 +70,7 @@ func main() {
 	<-application.or(
 		signal(2*time.Hour),
 		signal(5*time.Minute),
-		signal(5*time.Millisecond),
+		signal(1*time.Second),
 		signal(1*time.Hour),
 		signal(1*time.Minute),
 	)
