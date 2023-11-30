@@ -46,6 +46,7 @@ func (f *Flags) InitializeFlags() {
 }
 
 type ApplicationInterface interface {
+	CutInputStrings(*bufio.Scanner, *Flags)
 	ParseNumberColumns(string) int
 }
 
@@ -61,6 +62,16 @@ func main() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 
+	application.CutInputStrings(scanner, flags)
+
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("ошибка чтения стандартного ввода %v\n", err)
+
+		os.Exit(1)
+	}
+}
+
+func (a *Application) CutInputStrings(scanner *bufio.Scanner, flags *Flags) {
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -78,7 +89,7 @@ func main() {
 			field := strings.Split(flags.Fields, ",")
 
 			for _, v := range field {
-				index := application.ParseNumberColumns(v)
+				index := a.ParseNumberColumns(v)
 
 				if index > 0 && index <= len(fields) {
 					temporary = append(temporary, fields[index-1])
@@ -95,12 +106,6 @@ func main() {
 		fmt.Printf("%s\n", strings.Join(fields, flags.Delimiter))
 
 		fmt.Printf("\n")
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Printf("ошибка чтения стандартного ввода %v\n", err)
-
-		os.Exit(1)
 	}
 }
 

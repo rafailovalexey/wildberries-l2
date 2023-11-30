@@ -19,8 +19,18 @@ import (
 	Программа должна проходить проверки go vet и golint.
 */
 
+type ApplicationInterface interface {
+	GetTimeNtp() (time.Time, error)
+}
+
+type Application struct{}
+
+var _ ApplicationInterface = (*Application)(nil)
+
 func main() {
-	ntpTime, err := ntp.Time("0.beevik-ntp.pool.ntp.org")
+	application := &Application{}
+
+	ntpTime, err := application.GetTimeNtp()
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ошибка при получении времени: %v\n", err)
@@ -29,4 +39,14 @@ func main() {
 	}
 
 	fmt.Printf("точное время (с использованием NTP): %s\n", ntpTime.Format(time.RFC3339))
+}
+
+func (a *Application) GetTimeNtp() (time.Time, error) {
+	ntpTime, err := ntp.Time("0.beevik-ntp.pool.ntp.org")
+
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return ntpTime, nil
 }

@@ -25,18 +25,28 @@ import (
 	Функция должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
-func main() {
-	fmt.Println(unpack("a4bc2d5e") == "aaaabccddddde")
-	fmt.Println(unpack("abcd") == "abcd")
-	fmt.Println(unpack("45") == "")
-	fmt.Println(unpack("") == "")
-
-	fmt.Println(unpack("qwe\\4\\5") == "qwe45")
-	fmt.Println(unpack("qwe\\45") == "qwe44444")
-	fmt.Println(unpack("qwe\\\\5") == "qwe\\\\\\\\\\")
+type ApplicationInterface interface {
+	UnpackString(string) string
 }
 
-func unpack(str string) string {
+type Application struct{}
+
+var _ ApplicationInterface = (*Application)(nil)
+
+func main() {
+	application := &Application{}
+
+	fmt.Println(application.UnpackString("a4bc2d5e") == "aaaabccddddde")
+	fmt.Println(application.UnpackString("abcd") == "abcd")
+	fmt.Println(application.UnpackString("45") == "")
+	fmt.Println(application.UnpackString("") == "")
+
+	fmt.Println(application.UnpackString("qwe\\4\\5") == "qwe45")
+	fmt.Println(application.UnpackString("qwe\\45") == "qwe44444")
+	fmt.Println(application.UnpackString("qwe\\\\5") == "qwe\\\\\\\\\\")
+}
+
+func (a *Application) UnpackString(str string) string {
 	current := ""
 	factor := 1
 	escape := false

@@ -25,16 +25,26 @@ import (
 	Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
+type ApplicationInterface interface {
+	FindAnagrams(words []string) map[string][]string
+}
+
+type Application struct{}
+
+var _ ApplicationInterface = (*Application)(nil)
+
 func main() {
+	application := &Application{}
+
 	words := []string{"пятак", "пятка", "тяпка", "листок", "слиток", "столик"}
-	anagrams := FindAnagrams(words)
+	anagrams := application.FindAnagrams(words)
 
 	for key, value := range anagrams {
 		fmt.Println("множество анаграмм для", key, ":", strings.Join(value, ", "))
 	}
 }
 
-func FindAnagrams(words []string) map[string][]string {
+func (a *Application) FindAnagrams(words []string) map[string][]string {
 	anagrams := make(map[string][]string)
 
 	for _, value := range words {
