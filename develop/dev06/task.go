@@ -35,7 +35,7 @@ var _ FlagsInterface = (*Flags)(nil)
 
 func (f *Flags) InitializeFlags() {
 	fields := flag.String("f", "", "")
-	delimiter := flag.String("d", "", "")
+	delimiter := flag.String("d", "	", "")
 	separated := flag.Bool("s", false, "")
 
 	flag.Parse()
@@ -45,7 +45,9 @@ func (f *Flags) InitializeFlags() {
 	f.Separated = *separated
 }
 
-type ApplicationInterface interface{}
+type ApplicationInterface interface {
+	ParseNumberColumns(string) int
+}
 
 type Application struct{}
 
@@ -53,6 +55,7 @@ var _ ApplicationInterface = (*Application)(nil)
 
 func main() {
 	flags := &Flags{}
+	application := &Application{}
 
 	flags.InitializeFlags()
 
@@ -62,39 +65,49 @@ func main() {
 		line := scanner.Text()
 
 		if flags.Separated && !strings.Contains(line, flags.Delimiter) {
+			fmt.Printf("\n")
+
 			continue
 		}
 
-		fieldsList := strings.Split(line, flags.Delimiter)
-
-		var selectedFields []string
+		fields := strings.Split(line, flags.Delimiter)
 
 		if flags.Fields != "" {
-			fieldIndices := strings.Split(flags.Fields, ",")
+			temporary := make([]string, 0)
 
-			for _, indexStr := range fieldIndices {
-				index := parseInt(indexStr)
+			field := strings.Split(flags.Fields, ",")
 
-				if index > 0 && index <= len(fieldsList) {
-					selectedFields = append(selectedFields, fieldsList[index-1])
+			for _, v := range field {
+				index := application.ParseNumberColumns(v)
+
+				if index > 0 && index <= len(fields) {
+					temporary = append(temporary, fields[index-1])
 				}
 			}
-		} else {
-			selectedFields = fieldsList
+
+			fmt.Printf("%s\n", strings.Join(temporary, flags.Delimiter))
+
+			fmt.Printf("\n")
+
+			continue
 		}
 
-		fmt.Println(strings.Join(selectedFields, flags.Delimiter))
+		fmt.Printf("%s\n", strings.Join(fields, flags.Delimiter))
+
+		fmt.Printf("\n")
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "ошибка чтения стандартного ввода:", err)
+		fmt.Printf("ошибка чтения стандартного ввода %v\n", err)
+
+		os.Exit(1)
 	}
 }
 
-func parseInt(s string) int {
+func (a *Application) ParseNumberColumns(str string) int {
 	var result int
 
-	_, err := fmt.Sscanf(s, "%d", &result)
+	_, err := fmt.Sscanf(str, "%d", &result)
 
 	if err != nil {
 		return 0
