@@ -206,6 +206,10 @@ func GetSortedStringsWithArguments(
 
 	copy(temporary, data)
 
+	if check && CheckSortedStrings(temporary) {
+		return nil, errors.New("данные уже отсортированы")
+	}
+
 	if ignore {
 		temporary = GetStringsWithRemoveTrailingSpace(temporary)
 	}
@@ -255,10 +259,6 @@ func GetSortedStringsWithArguments(
 		sort.Sort(sort.Reverse(sort.StringSlice(temporary)))
 	}
 
-	if check && !CheckSortedStrings(temporary) {
-		return nil, errors.New("данные не отсортированы")
-	}
-
 	return temporary, nil
 }
 
@@ -289,7 +289,7 @@ func GetUniqueStrings(data []string) []string {
 }
 
 func CheckSortedStrings(data []string) bool {
-	check := sort.IsSorted(sort.StringSlice(data))
+	check := sort.StringsAreSorted(data)
 
 	return check
 }
@@ -364,6 +364,10 @@ func getMonthValue(month string) int {
 		"october":   10,
 		"november":  11,
 		"december":  12,
+	}
+
+	if _, isExist := months[strings.ToLower(month)]; !isExist {
+		return 99
 	}
 
 	return months[strings.ToLower(month)]
