@@ -40,87 +40,23 @@ import (
 	Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
-func main() {
-	inputFile := flag.String("i", "", "")
-	outputFile := flag.String("o", "", "")
-
-	column := flag.Int("k", 0, "")
-	numeric := flag.Bool("n", false, "")
-	reverse := flag.Bool("r", false, "")
-	unique := flag.Bool("u", false, "")
-
-	month := flag.Bool("M", false, "")
-	ignore := flag.Bool("b", false, "")
-	check := flag.Bool("c", false, "")
-	suffix := flag.Bool("h", false, "")
-
-	flag.Parse()
-
-	if *inputFile == "" {
-		fmt.Printf("%v\n", "укажите файл для чтения")
-
-		os.Exit(1)
-	}
-
-	inputFilepath, err := GetFilepath(*inputFile)
-
-	if err != nil {
-		fmt.Printf("%v\n", err)
-
-		os.Exit(1)
-	}
-
-	data, err := GetFileData(inputFilepath)
-
-	if err != nil {
-		fmt.Printf("%v\n", err)
-
-		os.Exit(1)
-	}
-
-	if *outputFile == "" {
-		fmt.Printf("%v\n", "укажите файл для записи")
-
-		os.Exit(1)
-	}
-
-	outputFilepath, err := GetFilepath(*outputFile)
-
-	if err != nil {
-		fmt.Printf("%v\n", err)
-
-		os.Exit(1)
-	}
-
-	result, err := GetSortedStringsWithArguments(
-		data,
-		*column,
-		*numeric,
-		*reverse,
-		*unique,
-		*month,
-		*ignore,
-		*check,
-		*suffix,
-	)
-
-	if err != nil {
-		fmt.Printf("%v\n", err)
-
-		os.Exit(1)
-	}
-
-	err = WriteFileData(outputFilepath, result)
-
-	if err != nil {
-		fmt.Printf("%v\n", err)
-
-		os.Exit(1)
-	}
+type FilesInterface interface {
+	GetNewlineFile() string
+	GetWorkDirectory() (string, error)
+	GetFilePath(file string) (string, error)
+	GetFileData(filepath string) ([]string, error)
+	WriteFileData(filepath string, data []string) error
 }
 
-func GetFilepath(file string) (string, error) {
-	wd, err := getWorkDirectory()
+type Files struct {
+	input  string
+	output string
+}
+
+var _ FilesInterface = (*Files)(nil)
+
+func (f *Files) GetFilePath(file string) (string, error) {
+	wd, err := f.GetWorkDirectory()
 
 	if err != nil {
 		return "", err
@@ -131,7 +67,7 @@ func GetFilepath(file string) (string, error) {
 	return filepath, nil
 }
 
-func GetFileData(filepath string) ([]string, error) {
+func (f *Files) GetFileData(filepath string) ([]string, error) {
 	data := make([]string, 0, 10)
 
 	file, err := os.Open(filepath)
@@ -161,7 +97,7 @@ func GetFileData(filepath string) ([]string, error) {
 	return data, nil
 }
 
-func WriteFileData(filepath string, data []string) error {
+func (f *Files) WriteFileData(filepath string, data []string) error {
 	file, err := os.Create(filepath)
 
 	if err != nil {
@@ -173,7 +109,7 @@ func WriteFileData(filepath string, data []string) error {
 	writer := bufio.NewWriter(file)
 
 	for _, v := range data {
-		newline := getNewline()
+		newline := f.GetNewlineFile()
 
 		_, err = writer.WriteString(v + newline)
 
@@ -191,51 +127,194 @@ func WriteFileData(filepath string, data []string) error {
 	return nil
 }
 
-func GetSortedStringsWithArguments(
+func (f *Files) GetWorkDirectory() (string, error) {
+	pwd, err := os.Getwd()
+
+	if err != nil {
+		return "", err
+	}
+
+	return pwd, nil
+}
+
+func (f *Files) GetNewlineFile() string {
+	if runtime.GOOS == "windows" {
+		return "\r\n"
+	}
+
+	return "\n"
+}
+
+func (f *Files) InitializeFiles() error {
+	input := flag.Arg(0)
+
+	if input == "" {
+		return errors.New("укажите файл для чтения")
+	}
+
+	inputFilePath, err := f.GetFilePath(input)
+
+	if err != nil {
+		return err
+	}
+
+	f.input = inputFilePath
+
+	output := flag.Arg(1)
+
+	if output == "" {
+		return errors.New("укажите файл для записи")
+	}
+
+	outputFilePath, err := f.GetFilePath(input)
+
+	if err != nil {
+		return err
+	}
+
+	f.output = outputFilePath
+
+	return nil
+}
+
+type FlagsInterface interface {
+	InitializeFlags()
+}
+
+type Flags struct {
+	ColumnKey           int
+	Numeric             bool
+	Reverse             bool
+	Unique              bool
+	Month               bool
+	IgnoreTrailingSpace bool
+	Check               bool
+	Suffix              bool
+}
+
+var _ FlagsInterface = (*Flags)(nil)
+
+func (f *Flags) InitializeFlags() {
+	columnKey := flag.Int("k", 0, "")
+	numeric := flag.Bool("n", false, "")
+	reverse := flag.Bool("r", false, "")
+	unique := flag.Bool("u", false, "")
+
+	month := flag.Bool("M", false, "")
+	ignoreTrailingSpace := flag.Bool("b", false, "")
+	check := flag.Bool("c", false, "")
+	suffix := flag.Bool("h", false, "")
+
+	flag.Parse()
+
+	f.ColumnKey = *columnKey
+	f.Numeric = *numeric
+	f.Reverse = *reverse
+	f.Unique = *unique
+
+	f.Month = *month
+	f.IgnoreTrailingSpace = *ignoreTrailingSpace
+	f.Check = *check
+	f.Suffix = *suffix
+}
+
+type ApplicationInterface interface {
+	GetSortedStringsWithArguments(data []string, flags *Flags) ([]string, error)
+	GetStringsWithRemoveTrailingSpace(data []string) []string
+	GetUniqueStrings(data []string) []string
+	CheckSortedStrings(data []string) bool
+	GetNumericValue(s string) int
+	GetNumericAndSuffix(input string) (int, string)
+	GetSortColumnKey(s string, column int) string
+	GetMonthValue(month string) int
+}
+
+type Application struct{}
+
+var _ ApplicationInterface = (*Application)(nil)
+
+func main() {
+	flags := &Flags{}
+	files := &Files{}
+
+	flags.InitializeFlags()
+
+	err := files.InitializeFiles()
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+
+		os.Exit(1)
+	}
+
+	data, err := files.GetFileData(files.input)
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+
+		os.Exit(1)
+	}
+
+	application := &Application{}
+
+	result, err := application.GetSortedStringsWithArguments(
+		data,
+		flags,
+	)
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+
+		os.Exit(1)
+	}
+
+	err = files.WriteFileData(files.output, result)
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+
+		os.Exit(1)
+	}
+}
+
+func (a *Application) GetSortedStringsWithArguments(
 	data []string,
-	column int,
-	numeric bool,
-	reverse bool,
-	unique bool,
-	month bool,
-	ignore bool,
-	check bool,
-	suffix bool,
+	flags *Flags,
 ) ([]string, error) {
 	temporary := make([]string, len(data))
 
 	copy(temporary, data)
 
-	if check && CheckSortedStrings(temporary) {
+	if flags.Check && a.CheckSortedStrings(temporary) {
 		return nil, errors.New("данные уже отсортированы")
 	}
 
-	if ignore {
-		temporary = GetStringsWithRemoveTrailingSpace(temporary)
+	if flags.IgnoreTrailingSpace {
+		temporary = a.GetStringsWithRemoveTrailingSpace(temporary)
 	}
 
 	function := func(i, j int) bool {
-		if month {
-			return getMonthValue(temporary[i]) < getMonthValue(temporary[j])
+		if flags.Month {
+			return a.GetMonthValue(temporary[i]) < a.GetMonthValue(temporary[j])
 		}
 
-		if column > 0 {
-			return getSortColumnKey(temporary[i], column) < getSortColumnKey(temporary[j], column)
+		if flags.ColumnKey > 0 {
+			return a.GetSortColumnKey(temporary[i], flags.ColumnKey) < a.GetSortColumnKey(temporary[j], flags.ColumnKey)
 		}
 
 		return temporary[i] < temporary[j]
 	}
 
-	if numeric {
+	if flags.Numeric {
 		function = func(i, j int) bool {
-			return getNumericValue(temporary[i]) < getNumericValue(temporary[j])
+			return a.GetNumericValue(temporary[i]) < a.GetNumericValue(temporary[j])
 		}
 	}
 
-	if suffix {
+	if flags.Suffix {
 		function = func(i, j int) bool {
-			valueI, suffixI := getNumericAndSuffix(temporary[i])
-			valueJ, suffixJ := getNumericAndSuffix(temporary[j])
+			valueI, suffixI := a.GetNumericAndSuffix(temporary[i])
+			valueJ, suffixJ := a.GetNumericAndSuffix(temporary[j])
 
 			if valueI < valueJ {
 				return true
@@ -249,20 +328,20 @@ func GetSortedStringsWithArguments(
 		}
 	}
 
-	if unique {
-		temporary = GetUniqueStrings(temporary)
+	if flags.Unique {
+		temporary = a.GetUniqueStrings(temporary)
 	}
 
 	sort.SliceStable(temporary, function)
 
-	if reverse {
+	if flags.Reverse {
 		sort.Sort(sort.Reverse(sort.StringSlice(temporary)))
 	}
 
 	return temporary, nil
 }
 
-func GetStringsWithRemoveTrailingSpace(data []string) []string {
+func (a *Application) GetStringsWithRemoveTrailingSpace(data []string) []string {
 	temporary := make([]string, len(data))
 
 	copy(temporary, data)
@@ -274,7 +353,7 @@ func GetStringsWithRemoveTrailingSpace(data []string) []string {
 	return temporary
 }
 
-func GetUniqueStrings(data []string) []string {
+func (a *Application) GetUniqueStrings(data []string) []string {
 	temporary := make([]string, 0, len(data))
 	dictionary := make(map[string]struct{}, len(data))
 
@@ -288,31 +367,13 @@ func GetUniqueStrings(data []string) []string {
 	return temporary
 }
 
-func CheckSortedStrings(data []string) bool {
+func (a *Application) CheckSortedStrings(data []string) bool {
 	check := sort.StringsAreSorted(data)
 
 	return check
 }
 
-func getWorkDirectory() (string, error) {
-	pwd, err := os.Getwd()
-
-	if err != nil {
-		return "", err
-	}
-
-	return pwd, nil
-}
-
-func getNewline() string {
-	if runtime.GOOS == "windows" {
-		return "\r\n"
-	}
-
-	return "\n"
-}
-
-func getNumericValue(s string) int {
+func (a *Application) GetNumericValue(s string) int {
 	num, err := strconv.Atoi(s)
 
 	if err != nil {
@@ -322,7 +383,7 @@ func getNumericValue(s string) int {
 	return num
 }
 
-func getNumericAndSuffix(input string) (int, string) {
+func (a *Application) GetNumericAndSuffix(input string) (int, string) {
 	match := regexp.MustCompile(`^(\d+)([a-zA-Z]*)$`).FindStringSubmatch(input)
 
 	if len(match) != 3 {
@@ -340,7 +401,7 @@ func getNumericAndSuffix(input string) (int, string) {
 	return value, suffix
 }
 
-func getSortColumnKey(s string, column int) string {
+func (a *Application) GetSortColumnKey(s string, column int) string {
 	columns := strings.Fields(s)
 
 	if column > 0 && column <= len(columns) {
@@ -350,7 +411,7 @@ func getSortColumnKey(s string, column int) string {
 	return s
 }
 
-func getMonthValue(month string) int {
+func (a *Application) GetMonthValue(month string) int {
 	months := map[string]int{
 		"january":   1,
 		"february":  2,

@@ -126,6 +126,29 @@ type Flags struct {
 
 var _ FlagsInterface = (*Flags)(nil)
 
+func (f *Flags) InitializeFlags() {
+	after := flag.Int("A", 0, "")
+	before := flag.Int("B", 0, "")
+	context := flag.Int("C", 0, "")
+	count := flag.Bool("c", false, "")
+
+	ignoreCase := flag.Bool("i", false, "")
+	invert := flag.Bool("v", false, "")
+	fixed := flag.Bool("F", false, "")
+	lineNumbers := flag.Bool("n", false, "")
+
+	flag.Parse()
+
+	f.After = *after
+	f.Before = *before
+	f.Context = *context
+	f.Count = *count
+	f.IgnoreCase = *ignoreCase
+	f.Invert = *invert
+	f.Fixed = *fixed
+	f.LineNumbers = *lineNumbers
+}
+
 type ApplicationInterface interface{}
 
 type Application struct{}
@@ -160,29 +183,6 @@ func main() {
 		data,
 		flags,
 	)
-}
-
-func (f *Flags) InitializeFlags() {
-	after := flag.Int("A", 0, "")
-	before := flag.Int("B", 0, "")
-	context := flag.Int("C", 0, "")
-	count := flag.Bool("c", false, "")
-
-	ignoreCase := flag.Bool("i", false, "")
-	invert := flag.Bool("v", false, "")
-	fixed := flag.Bool("F", false, "")
-	lineNumbers := flag.Bool("n", false, "")
-
-	flag.Parse()
-
-	f.After = *after
-	f.Before = *before
-	f.Context = *context
-	f.Count = *count
-	f.IgnoreCase = *ignoreCase
-	f.Invert = *invert
-	f.Fixed = *fixed
-	f.LineNumbers = *lineNumbers
 }
 
 //func Grep(data []string, pattern string, flags Flags) []string {
