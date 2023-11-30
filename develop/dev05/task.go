@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"regexp"
+	"strings"
 )
 
 /*
@@ -28,8 +30,8 @@ import (
 */
 
 type FilesInterface interface {
-	GetFilePath(file string) (string, error)
-	GetFileData(filepath string) ([]string, error)
+	GetFilePath(string) (string, error)
+	GetFileData(string) ([]string, error)
 	GetWorkDirectory() (string, error)
 }
 
@@ -149,7 +151,11 @@ func (f *Flags) InitializeFlags() {
 	f.LineNumbers = *lineNumbers
 }
 
-type ApplicationInterface interface{}
+type ApplicationInterface interface {
+	Grep([]string, string, *Flags) ([]string, error)
+	Match(string, string, *Flags) (bool, error)
+	PrintFileData([]string, *Flags)
+}
 
 type Application struct{}
 
@@ -177,7 +183,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	pattern := flag.Arg(1)
+
 	application := &Application{}
+
+	data, err = application.Grep(data, pattern, flags)
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+
+		os.Exit(1)
+	}
 
 	application.PrintFileData(
 		data,
@@ -185,39 +201,46 @@ func main() {
 	)
 }
 
-//func Grep(data []string, pattern string, flags Flags) []string {
-//	var result []string
-//
-//	for i, line := range data {
-//		matched := flags.match(line, pattern)
-//
-//		if (flags.Before > 0 && i < flags.Before) || (flags.After > 0 && i+flags.After >= len(data)) {
-//			result = append(result, line)
-//		} else if matched {
-//			result = append(result, line)
-//		} else if flags.Context > 0 && i+flags.Context < len(data) {
-//			result = append(result, data[i:i+flags.Context+1]...)
-//		}
-//	}
-//
-//	return result
-//}
+func (a *Application) Grep(data []string, pattern string, flags *Flags) ([]string, error) {
+	var temporary []string
 
-//func Match(line, pattern string) bool {
-//	if f.Fixed {
-//		return line == pattern
-//	}
-//
-//	if f.IgnoreCase {
-//		line = strings.ToLower(line)
-//		pattern = strings.ToLower(pattern)
-//	}
-//
-//	matched, err := regexp.MatchString(pattern, line)
-//	checkError(err)
-//
-//	return matched != f.Invert
-//}
+	for index, line := range data {
+		matched, err := a.Match(line, pattern, flags)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if (flags.Before > 0 && index < flags.Before) || (flags.After > 0 && index+flags.After >= len(data)) {
+			temporary = append(temporary, line)
+		} else if matched {
+			temporary = append(temporary, line)
+		} else if flags.Context > 0 && index+flags.Context < len(data) {
+			temporary = append(temporary, data[index:index+flags.Context+1]...)
+		}
+	}
+
+	return temporary, nil
+}
+
+func (a *Application) Match(line string, pattern string, flags *Flags) (bool, error) {
+	if flags.Fixed {
+		return line == pattern, nil
+	}
+
+	if flags.IgnoreCase {
+		line = strings.ToLower(line)
+		pattern = strings.ToLower(pattern)
+	}
+
+	matched, err := regexp.MatchString(pattern, line)
+
+	if err != nil {
+		return false, err
+	}
+
+	return matched != flags.Invert, nil
+}
 
 func (a *Application) PrintFileData(
 	data []string,

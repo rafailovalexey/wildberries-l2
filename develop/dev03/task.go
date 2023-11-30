@@ -43,9 +43,9 @@ import (
 type FilesInterface interface {
 	GetNewlineFile() string
 	GetWorkDirectory() (string, error)
-	GetFilePath(file string) (string, error)
-	GetFileData(filepath string) ([]string, error)
-	WriteFileData(filepath string, data []string) error
+	GetFilePath(string) (string, error)
+	GetFileData(string) ([]string, error)
+	WriteFileData(string, []string) error
 }
 
 type Files struct {
@@ -219,14 +219,14 @@ func (f *Flags) InitializeFlags() {
 }
 
 type ApplicationInterface interface {
-	GetSortedStringsWithArguments(data []string, flags *Flags) ([]string, error)
-	GetStringsWithRemoveTrailingSpace(data []string) []string
-	GetUniqueStrings(data []string) []string
-	CheckSortedStrings(data []string) bool
-	GetNumericValue(s string) int
-	GetNumericAndSuffix(input string) (int, string)
-	GetSortColumnKey(s string, column int) string
-	GetMonthValue(month string) int
+	GetSortedStringsWithArguments([]string, *Flags) ([]string, error)
+	GetStringsWithRemoveTrailingSpace([]string) []string
+	GetUniqueStrings([]string) []string
+	CheckSortedStrings([]string) bool
+	GetNumericValue(string) int
+	GetNumericAndSuffix(string) (int, string)
+	GetSortColumnKey(string, int) string
+	GetMonthValue(string) int
 }
 
 type Application struct{}
@@ -373,8 +373,8 @@ func (a *Application) CheckSortedStrings(data []string) bool {
 	return check
 }
 
-func (a *Application) GetNumericValue(s string) int {
-	num, err := strconv.Atoi(s)
+func (a *Application) GetNumericValue(str string) int {
+	num, err := strconv.Atoi(str)
 
 	if err != nil {
 		return 999999999
@@ -401,14 +401,14 @@ func (a *Application) GetNumericAndSuffix(input string) (int, string) {
 	return value, suffix
 }
 
-func (a *Application) GetSortColumnKey(s string, column int) string {
-	columns := strings.Fields(s)
+func (a *Application) GetSortColumnKey(str string, column int) string {
+	columns := strings.Fields(str)
 
 	if column > 0 && column <= len(columns) {
 		return columns[column-1]
 	}
 
-	return s
+	return str
 }
 
 func (a *Application) GetMonthValue(month string) int {
