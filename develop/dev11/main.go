@@ -31,11 +31,11 @@ import (
 func main() {
 	ctx := context.Background()
 
-	application, err := application.NewApplication(ctx)
+	app, err := application.NewApplication(ctx)
 
 	if err != nil {
 		log.Panicf("произошла ошибка при инициализации %v", err)
 	}
 
-	application.Run()
+	app.Run()
 }
