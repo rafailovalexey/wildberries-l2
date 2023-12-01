@@ -30,12 +30,21 @@ type Command struct {
 
 type Commands = []Command
 
+type ApplicationInterface interface {
+	GetCommands() map[string]Command
+}
+
+type Application struct{}
+
+var _ ApplicationInterface = (*Application)(nil)
+
 func main() {
+	application := &Application{}
+	commands := application.GetCommands()
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		commands := GetCommands()
-
 		fmt.Printf("$ ")
 
 		scanner.Scan()
@@ -70,7 +79,7 @@ func main() {
 	}
 }
 
-func GetCommands() map[string]Command {
+func (a *Application) GetCommands() map[string]Command {
 	commands := &Commands{
 		Command{
 			name: "cd",
