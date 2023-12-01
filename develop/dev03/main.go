@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -149,7 +148,7 @@ func (f *Files) InitializeFiles() error {
 	input := flag.Arg(0)
 
 	if input == "" {
-		return errors.New("укажите файл для чтения")
+		return fmt.Errorf("укажите файл для чтения")
 	}
 
 	inputFilePath, err := f.GetFilePath(input)
@@ -163,7 +162,7 @@ func (f *Files) InitializeFiles() error {
 	output := flag.Arg(1)
 
 	if output == "" {
-		return errors.New("укажите файл для записи")
+		return fmt.Errorf("укажите файл для записи")
 	}
 
 	outputFilePath, err := f.GetFilePath(input)
@@ -286,7 +285,7 @@ func (a *Application) GetSortedStringsWithArguments(
 	copy(temporary, data)
 
 	if flags.Check && a.CheckSortedStrings(temporary) {
-		return nil, errors.New("данные уже отсортированы")
+		return nil, fmt.Errorf("данные уже отсортированы")
 	}
 
 	if flags.IgnoreTrailingSpace {

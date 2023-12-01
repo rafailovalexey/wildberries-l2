@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -97,7 +96,7 @@ func (f *Files) InitializeFiles() error {
 	input := flag.Arg(0)
 
 	if input == "" {
-		return errors.New("укажите файл для чтения")
+		return fmt.Errorf("укажите файл для чтения")
 	}
 
 	filepath, err := f.GetFilePath(input)
