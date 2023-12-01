@@ -19,8 +19,33 @@ import (
 	Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
-func main() {
+type FlagsInterface interface {
+	InitializeFlags()
+}
+
+type Flags struct{}
+
+var _ FlagsInterface = (*Flags)(nil)
+
+func (f *Flags) InitializeFlags() {
 	flag.Parse()
+}
+
+type ApplicationInterface interface {
+	Download(site string) error
+	DownloadResource(directory string, resource string) error
+	Resolve(base *url.URL, resource string) string
+}
+
+type Application struct{}
+
+var _ ApplicationInterface = (*Application)(nil)
+
+func main() {
+	flags := &Flags{}
+	application := &Application{}
+
+	flags.InitializeFlags()
 
 	site := flag.Arg(0)
 
@@ -30,7 +55,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err := Download(site)
+	err := application.Download(site)
 
 	if err != nil {
 		fmt.Printf("ошибка загрузки сайта: %v\n", err)
@@ -39,7 +64,7 @@ func main() {
 	}
 }
 
-func Download(site string) error {
+func (a *Application) Download(site string) error {
 	parsed, err := url.Parse(site)
 
 	if err != nil {
@@ -79,9 +104,9 @@ func Download(site string) error {
 
 			for _, attribute := range temporary.Attr {
 				if attribute.Key == "href" || attribute.Key == "src" {
-					resource := Resolve(parsed, attribute.Val)
+					resource := a.Resolve(parsed, attribute.Val)
 
-					err = DownloadResource(directory, resource)
+					err = a.DownloadResource(directory, resource)
 
 					if err != nil {
 						fmt.Printf("ошибка загрузки ресурса %s: %v\n", resource, err)
@@ -92,7 +117,7 @@ func Download(site string) error {
 	}
 }
 
-func Resolve(base *url.URL, resource string) string {
+func (a *Application) Resolve(base *url.URL, resource string) string {
 	parsed, err := url.Parse(resource)
 
 	if err != nil {
@@ -104,7 +129,7 @@ func Resolve(base *url.URL, resource string) string {
 	return resolved.String()
 }
 
-func DownloadResource(directory string, resource string) error {
+func (a *Application) DownloadResource(directory string, resource string) error {
 	parsed, err := url.Parse(resource)
 
 	if err != nil {
