@@ -34,12 +34,12 @@ func NewApplication(ctx context.Context) (*Application, error) {
 }
 
 func (a *Application) InitializeDependency(ctx context.Context) error {
-	inits := []func(context.Context) error{
+	initializations := []func(context.Context) error{
 		a.InitializeEnvironment,
 		a.InitializeProvider,
 	}
 
-	for _, function := range inits {
+	for _, function := range initializations {
 		err := function(ctx)
 
 		if err != nil {
