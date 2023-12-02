@@ -47,14 +47,17 @@ func Run(controllerEvents controller.ControllerEventsInterface) {
 	}
 }
 
-func NotFound(writer http.ResponseWriter, request *http.Request) {
-	WriteErrorNotFound(writer)
+func NotFound(w http.ResponseWriter, r *http.Request) {
+	WriteErrorNotFound(w)
 }
 
-func WriteErrorNotFound(writer http.ResponseWriter) {
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(http.StatusMethodNotAllowed)
-	writer.Write(SerializeError("not found"))
+func WriteErrorNotFound(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	w.Write(SerializeError("not found"))
+
+	return
+
 }
 
 func SerializeError(message string) []byte {

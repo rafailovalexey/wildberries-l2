@@ -78,13 +78,7 @@ func insertEvent(
            	$3,
             $4
        )
-       RETURNING (
-			id,
-			user_id,
-			date,
-			created_at,
-			updated_at
-       );
+       RETURNING id, user_id, date, created_at, updated_at;
    `
 
 	createdEvent := &model.EventModel{}
@@ -97,6 +91,7 @@ func insertEvent(
 		eventModel.CreatedAt,
 		eventModel.UpdatedAt,
 	).Scan(
+		&createdEvent.Id,
 		&createdEvent.UserId,
 		&createdEvent.Date,
 		&createdEvent.CreatedAt,
@@ -148,13 +143,7 @@ func updateEvent(
 		    date = $1,
 		    updated_at = $2
        WHERE user_id = $3
-       RETURNING (
-			id,
-			user_id,
-			date,
-			created_at,
-			updated_at
-       );
+       RETURNING id, user_id, date, created_at, updated_at;
    `
 
 	updatedEvent := &model.EventModel{}
@@ -166,6 +155,7 @@ func updateEvent(
 		time.Now(),
 		eventModel.UserId,
 	).Scan(
+		&updatedEvent.Id,
 		&updatedEvent.UserId,
 		&updatedEvent.Date,
 		&updatedEvent.CreatedAt,

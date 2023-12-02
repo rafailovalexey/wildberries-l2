@@ -21,7 +21,7 @@ func (v *ValidationEvents) CreateEventValidation(createEventRequest *request.Cre
 		return err
 	}
 
-	if err := isValidDate(createEventRequest.Date, "0000-00-00", "date"); err != nil {
+	if err := isValidDate("2006-01-02", createEventRequest.Date, "date"); err != nil {
 		return err
 	}
 
@@ -33,7 +33,7 @@ func (v *ValidationEvents) UpdateEventValidation(updateEventRequest *request.Upd
 		return err
 	}
 
-	if err := isValidDate(updateEventRequest.Date, "0000-00-00", "date"); err != nil {
+	if err := isValidDate("2006-01-02", updateEventRequest.Date, "date"); err != nil {
 		return err
 	}
 
@@ -45,7 +45,7 @@ func (v *ValidationEvents) EventsForDayValidation(userId string, date string) er
 		return err
 	}
 
-	if err := isValidDate(date, "0000-00-00", "date"); err != nil {
+	if err := isValidDate("2006-01-02", date, "date"); err != nil {
 		return err
 	}
 
@@ -57,7 +57,7 @@ func (v *ValidationEvents) EventsForWeekValidation(userId string, date string) e
 		return err
 	}
 
-	if err := isValidDate(date, "0000-00-00", "date"); err != nil {
+	if err := isValidDate("2006-01-02", date, "date"); err != nil {
 		return err
 	}
 
@@ -69,7 +69,7 @@ func (v *ValidationEvents) EventsForMonthValidation(userId string, date string) 
 		return err
 	}
 
-	if err := isValidDate(date, "0000-00-00", "date"); err != nil {
+	if err := isValidDate("2006-01-02", date, "date"); err != nil {
 		return err
 	}
 
@@ -86,7 +86,7 @@ func isValidUuid(uuid string, field string) error {
 	return nil
 }
 
-func isValidDate(date string, layout string, field string) error {
+func isValidDate(layout string, date string, field string) error {
 	_, err := time.Parse(layout, date)
 
 	if err != nil {

@@ -48,29 +48,39 @@ func (c *ControllerEvents) CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	createEventDto, err := c.converterEvents.MapCreateEventRequestToCreateEventDto(createEventRequest)
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	eventDto, err := c.serviceEvents.CreateEvent(createEventDto)
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	eventResponse, err := c.converterEvents.MapEventDtoToEventResponse(eventDto)
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	fmt.Println(eventResponse)
 
 	WriteResultCreated(w, "")
+
+	return
 }
 
 func (c *ControllerEvents) UpdateEvent(w http.ResponseWriter, r *http.Request) {
@@ -88,24 +98,32 @@ func (c *ControllerEvents) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	updateEventDto, err := c.converterEvents.MapUpdateEventRequestToUpdateEventDto(updateEventRequest)
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	eventDto, err := c.serviceEvents.UpdateEvent(updateEventDto)
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	eventResponse, err := c.converterEvents.MapEventDtoToEventResponse(eventDto)
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	fmt.Println(eventResponse)
@@ -123,6 +141,8 @@ func (c *ControllerEvents) EventsForDay(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	parsed, _ := time.Parse("0000-00-00", date)
@@ -136,12 +156,16 @@ func (c *ControllerEvents) EventsForDay(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	eventsResponse, err := c.converterEvents.MapEventsDtoToEventsResponse(eventsDto)
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	fmt.Println(eventsResponse)
@@ -159,6 +183,8 @@ func (c *ControllerEvents) EventsForWeek(w http.ResponseWriter, r *http.Request)
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	parsed, _ := time.Parse("0000-00-00", date)
@@ -172,12 +198,16 @@ func (c *ControllerEvents) EventsForWeek(w http.ResponseWriter, r *http.Request)
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	eventsResponse, err := c.converterEvents.MapEventsDtoToEventsResponse(eventsDto)
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	fmt.Println(eventsResponse)
@@ -195,6 +225,8 @@ func (c *ControllerEvents) EventsForMonth(w http.ResponseWriter, r *http.Request
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	parsed, _ := time.Parse("0000-00-00", date)
@@ -208,12 +240,16 @@ func (c *ControllerEvents) EventsForMonth(w http.ResponseWriter, r *http.Request
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	eventsResponse, err := c.converterEvents.MapEventsDtoToEventsResponse(eventsDto)
 
 	if err != nil {
 		WriteErrorBadRequest(w, err.Error())
+
+		return
 	}
 
 	fmt.Println(eventsResponse)
@@ -233,6 +269,8 @@ func (c *ControllerEvents) EventsHandler(w http.ResponseWriter, r *http.Request)
 			c.EventsForMonth(w, r)
 		default:
 			WriteErrorNotFound(w)
+
+			return
 		}
 	case http.MethodPost:
 		switch r.RequestURI {
@@ -242,9 +280,13 @@ func (c *ControllerEvents) EventsHandler(w http.ResponseWriter, r *http.Request)
 			c.UpdateEvent(w, r)
 		default:
 			WriteErrorNotFound(w)
+
+			return
 		}
 	default:
 		WriteErrorMethodNotAllowed(w)
+
+		return
 	}
 }
 

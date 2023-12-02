@@ -7,13 +7,13 @@ import (
 )
 
 func LoggingInterceptor(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		next.ServeHTTP(writer, request)
+		next.ServeHTTP(w, r)
 
 		duration := time.Since(start)
 
-		log.Printf("%s %s %s - %s %v\n", request.Method, request.URL.Path, request.RemoteAddr, request.UserAgent(), duration)
+		log.Printf("%s %s %s - %s %v\n", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), duration)
 	})
 }

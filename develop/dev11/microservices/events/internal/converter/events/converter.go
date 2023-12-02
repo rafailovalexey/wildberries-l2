@@ -18,7 +18,7 @@ func NewConverterEvents() *ConverterEvents {
 }
 
 func (c *ConverterEvents) MapCreateEventRequestToCreateEventDto(createEventRequest *request.CreateEventRequest) (*dto.CreateEventDto, error) {
-	parsed, err := time.Parse("0000-00-00", createEventRequest.Date)
+	parsed, err := time.Parse("2006-01-02", createEventRequest.Date)
 
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (c *ConverterEvents) MapCreateEventRequestToCreateEventDto(createEventReque
 }
 
 func (c *ConverterEvents) MapUpdateEventRequestToUpdateEventDto(updateEventRequest *request.UpdateEventRequest) (*dto.UpdateEventDto, error) {
-	parsed, err := time.Parse("0000-00-00", updateEventRequest.Date)
+	parsed, err := time.Parse("2006-01-02", updateEventRequest.Date)
 
 	if err != nil {
 		return nil, err

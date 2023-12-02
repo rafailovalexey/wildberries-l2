@@ -8,7 +8,7 @@ import (
 )
 
 func AuthenticationMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		header := os.Getenv("AUTHENTICATION_TOKEN_HEADER")
 
 		if header == "" {
@@ -21,22 +21,22 @@ func AuthenticationMiddleware(next http.Handler) http.Handler {
 			log.Panicf("specify the value of the authentication token")
 		}
 
-		key := request.Header.Get(header)
+		key := r.Header.Get(header)
 
 		if key != token {
-			WriteErrorUnauthorized(writer)
+			WriteErrorUnauthorized(w)
 
 			return
 		}
 
-		next.ServeHTTP(writer, request)
+		next.ServeHTTP(w, r)
 	})
 }
 
-func WriteErrorUnauthorized(writer http.ResponseWriter) {
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(http.StatusUnauthorized)
-	writer.Write(SerializeError("unauthorized"))
+func WriteErrorUnauthorized(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnauthorized)
+	w.Write(SerializeError("unauthorized"))
 }
 
 func SerializeError(message string) []byte {
