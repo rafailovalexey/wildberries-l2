@@ -12,6 +12,7 @@ type ProviderEventsInterface interface {
 	GetControllerEvents() controller.ControllerEventsInterface
 	GetServiceEvents() service.ServiceEventsInterface
 	GetRepositoryEvents() repository.RepositoryEventsInterface
+
 	GetConverterEvents() converter.ConverterEventsInterface
 	GetValidationEvents() validation.ValidationEventsInterface
 }

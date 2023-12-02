@@ -40,15 +40,23 @@ func (r *RepositoryEvents) CreateEvent(
 	pool := r.database.GetPool()
 	defer pool.Close()
 
-	eventModel := r.converterEvents.MapCreateEventDtoToEventModel(createEventDto)
-
-	eventModel, err := insertEvent(pool, eventModel)
+	createEventModel, err := r.converterEvents.MapCreateEventDtoToEventModel(createEventDto)
 
 	if err != nil {
 		return nil, err
 	}
 
-	eventDto := r.converterEvents.MapEventModelToEventDto(eventModel)
+	eventModel, err := insertEvent(pool, createEventModel)
+
+	if err != nil {
+		return nil, err
+	}
+
+	eventDto, err := r.converterEvents.MapEventModelToEventDto(eventModel)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return eventDto, nil
 }
@@ -109,15 +117,23 @@ func (r *RepositoryEvents) UpdateEvent(updateEventDto *dto.UpdateEventDto) (*dto
 	pool := r.database.GetPool()
 	defer pool.Close()
 
-	eventModel := r.converterEvents.MapUpdateEventDtoToEventModel(updateEventDto)
-
-	eventModel, err := updateEvent(pool, eventModel)
+	updateEventModel, err := r.converterEvents.MapUpdateEventDtoToEventModel(updateEventDto)
 
 	if err != nil {
 		return nil, err
 	}
 
-	eventDto := r.converterEvents.MapEventModelToEventDto(eventModel)
+	eventModel, err := updateEvent(pool, updateEventModel)
+
+	if err != nil {
+		return nil, err
+	}
+
+	eventDto, err := r.converterEvents.MapEventModelToEventDto(eventModel)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return eventDto, nil
 }
@@ -179,7 +195,11 @@ func (r *RepositoryEvents) GetEventsByUserIdAndPeriod(
 		return nil, err
 	}
 
-	eventsDto := r.converterEvents.MapEventsModelToEventsDto(eventsModel)
+	eventsDto, err := r.converterEvents.MapEventsModelToEventsDto(eventsModel)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return eventsDto, nil
 }

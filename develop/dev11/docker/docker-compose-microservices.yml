@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  events:
+    container_name: "events"
+    hostname: "events"
+    restart: "always"
+    ports:
+      - "3000:3000"
+    networks:
+      - "network"
+    build:
+      context: "../microservices/events"
+      dockerfile: "application.dockerfile"
+
+networks:
+  network:
+    driver: "bridge"
