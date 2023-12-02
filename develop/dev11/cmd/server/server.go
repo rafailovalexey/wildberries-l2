@@ -6,14 +6,13 @@ import (
 	"github.com/emptyhopes/wildberries-l2-dev11/cmd/server/interceptor"
 	"github.com/emptyhopes/wildberries-l2-dev11/cmd/server/middleware"
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/controller"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
 )
 
 func Run(controllerEvents controller.ControllerEventsInterface) {
-	router := mux.NewRouter()
+	router := http.NewServeMux()
 
 	middlewares := chain.ChainHandlers(
 		interceptor.LoggingInterceptor,
@@ -21,13 +20,10 @@ func Run(controllerEvents controller.ControllerEventsInterface) {
 		middleware.AuthenticationMiddleware,
 	)
 
-	router.Use(middlewares)
+	handler := http.HandlerFunc(controllerEvents.EventsHandler)
+	wrapped := middlewares(handler)
 
-	//router.NotFoundHandler = http.HandlerFunc(controllerEvents.NotFound)
-	//router.MethodNotAllowedHandler = http.HandlerFunc(controllerEvents.MethodNotAllowed)
-
-	//router.HandleFunc("/v1/employees/{id:[a-zA-Z0-9-]+}", controllerEvents.GetEmployeeById).Methods("GET")
-	//router.HandleFunc("/v1/employees", controllerEvents.CreateEmployee).Methods("POST")
+	router.Handle("/v1/events/", wrapped)
 
 	hostname := os.Getenv("HOSTNAME")
 
