@@ -12,14 +12,15 @@ import (
 	serviceEvents "github.com/emptyhopes/wildberries-l2-dev11/internal/service/events"
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/validation"
 	validationEvents "github.com/emptyhopes/wildberries-l2-dev11/internal/validation/events"
+	"github.com/emptyhopes/wildberries-l2-dev11/storage"
 )
 
 type ProviderEvents struct {
 	controllerEvents controller.ControllerEventsInterface
 	serviceEvents    service.ServiceEventsInterface
 	repositoryEvents repository.RepositoryEventsInterface
-	validationEvents validation.ValidationEventsInterface
 	converterEvents  converter.ConverterEventsInterface
+	validationEvents validation.ValidationEventsInterface
 }
 
 var _ definition.ProviderEventsInterface = (*ProviderEvents)(nil)
@@ -32,6 +33,7 @@ func (p *ProviderEvents) GetControllerEvents() controller.ControllerEventsInterf
 	if p.controllerEvents == nil {
 		p.controllerEvents = controllerEvents.NewControllerEvents(
 			p.GetValidationEvents(),
+			p.GetServiceEvents(),
 			p.GetConverterEvents(),
 		)
 	}
@@ -53,6 +55,7 @@ func (p *ProviderEvents) GetRepositoryEvents() repository.RepositoryEventsInterf
 	if p.repositoryEvents == nil {
 		p.repositoryEvents = repositoryEvents.NewRepositoryEvents(
 			p.GetConverterEvents(),
+			storage.NewDatabase(),
 		)
 	}
 

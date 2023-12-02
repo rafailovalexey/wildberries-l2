@@ -90,7 +90,8 @@ func (d *Database) CreateTables(pool *pgxpool.Pool) {
 func createEmployeeTable(pool *pgxpool.Pool) {
 	query := `
 		CREATE TABLE IF NOT EXISTS events (
-			user_id UUID PRIMARY KEY,
+		    id SERIAL PRIMARY KEY,
+			user_id UUID NOT NULL,
 			date TIMESTAMP NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL

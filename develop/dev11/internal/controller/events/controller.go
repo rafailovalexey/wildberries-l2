@@ -2,29 +2,32 @@ package events
 
 import (
 	"encoding/json"
-	"fmt"
 	definition "github.com/emptyhopes/wildberries-l2-dev11/internal/controller"
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/converter"
 	dto "github.com/emptyhopes/wildberries-l2-dev11/internal/dto/events"
+	"github.com/emptyhopes/wildberries-l2-dev11/internal/service"
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/validation"
 	"net/http"
 	"time"
 )
 
 type ControllerEvents struct {
-	converterEvents  converter.ConverterEventsInterface
 	validationEvents validation.ValidationEventsInterface
+	serviceEvents    service.ServiceEventsInterface
+	converterEvents  converter.ConverterEventsInterface
 }
 
 var _ definition.ControllerEventsInterface = (*ControllerEvents)(nil)
 
 func NewControllerEvents(
-	converterEvents converter.ConverterEventsInterface,
 	validationEvents validation.ValidationEventsInterface,
+	serviceEvents service.ServiceEventsInterface,
+	converterEvents converter.ConverterEventsInterface,
 ) *ControllerEvents {
 	return &ControllerEvents{
-		converterEvents:  converterEvents,
 		validationEvents: validationEvents,
+		serviceEvents:    serviceEvents,
+		converterEvents:  converterEvents,
 	}
 }
 
@@ -39,7 +42,13 @@ func (c *ControllerEvents) CreateEvent(writer http.ResponseWriter, request *http
 
 	defer request.Body.Close()
 
-	fmt.Println(createEventDto)
+	eventDto, err := c.serviceEvents.CreateEvent(createEventDto)
+
+	if err != nil {
+		WriteErrorBadRequest(writer, err.Error())
+	}
+
+	WriteResultCreated(writer, eventDto.UserId)
 }
 
 func (c *ControllerEvents) UpdateEvent(writer http.ResponseWriter, request *http.Request) {
@@ -53,7 +62,13 @@ func (c *ControllerEvents) UpdateEvent(writer http.ResponseWriter, request *http
 
 	defer request.Body.Close()
 
-	fmt.Println(updateEventDto)
+	eventDto, err := c.serviceEvents.UpdateEvent(updateEventDto)
+
+	if err != nil {
+		WriteErrorBadRequest(writer, err.Error())
+	}
+
+	WriteResultOk(writer, eventDto.UserId)
 }
 
 func (c *ControllerEvents) EventsForDay(writer http.ResponseWriter, request *http.Request) {
@@ -75,7 +90,13 @@ func (c *ControllerEvents) EventsForDay(writer http.ResponseWriter, request *htt
 		parsed,
 	)
 
-	fmt.Println(eventsForDayDto)
+	eventDto, err := c.serviceEvents.GetEventsForDay(eventsForDayDto)
+
+	if err != nil {
+		WriteErrorBadRequest(writer, err.Error())
+	}
+
+	WriteResultOk(writer, eventDto.UserId)
 }
 
 func (c *ControllerEvents) EventsForWeek(writer http.ResponseWriter, request *http.Request) {
@@ -97,7 +118,13 @@ func (c *ControllerEvents) EventsForWeek(writer http.ResponseWriter, request *ht
 		parsed,
 	)
 
-	fmt.Println(eventsForWeekDto)
+	eventDto, err := c.serviceEvents.GetEventsForWeek(eventsForWeekDto)
+
+	if err != nil {
+		WriteErrorBadRequest(writer, err.Error())
+	}
+
+	WriteResultOk(writer, eventDto.UserId)
 }
 
 func (c *ControllerEvents) EventsForMonth(writer http.ResponseWriter, request *http.Request) {
@@ -119,7 +146,13 @@ func (c *ControllerEvents) EventsForMonth(writer http.ResponseWriter, request *h
 		parsed,
 	)
 
-	fmt.Println(eventsForMonthDto)
+	eventDto, err := c.serviceEvents.GetEventsForMonth(eventsForMonthDto)
+
+	if err != nil {
+		WriteErrorBadRequest(writer, err.Error())
+	}
+
+	WriteResultOk(writer, eventDto.UserId)
 }
 
 func (c *ControllerEvents) EventsHandler(writer http.ResponseWriter, request *http.Request) {
