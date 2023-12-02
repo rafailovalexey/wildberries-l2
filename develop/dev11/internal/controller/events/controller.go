@@ -2,7 +2,6 @@ package events
 
 import (
 	"encoding/json"
-	"fmt"
 	definition "github.com/emptyhopes/wildberries-l2-dev11/internal/controller"
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/converter"
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/validation"
@@ -47,24 +46,60 @@ func (c *ControllerEvents) EventsForMonth(writer http.ResponseWriter, request *h
 }
 
 func (c *ControllerEvents) EventsHandler(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println(request.URL)
-	fmt.Println(request.RequestURI)
-	fmt.Println(request.Method)
-
-	switch {
-	case request.Method == "POST" && request.RequestURI == "/v1/events/create_event":
-		c.CreateEvent(writer, request)
-	case request.Method == "POST" && request.RequestURI == "/v1/events/update_event":
-		c.UpdateEvent(writer, request)
-	case request.Method == "GET" && request.RequestURI == "/v1/events/events_for_day":
-		c.EventsForDay(writer, request)
-	case request.Method == "GET" && request.RequestURI == "/v1/events/events_for_week":
-		c.EventsForWeek(writer, request)
-	case request.Method == "GET" && request.RequestURI == "/v1/events/events_for_month":
-		c.EventsForMonth(writer, request)
+	switch request.Method {
+	case http.MethodGet:
+		switch request.RequestURI {
+		case "/v1/events/events_for_day":
+			c.EventsForDay(writer, request)
+		case "/v1/events/events_for_week":
+			c.EventsForWeek(writer, request)
+		case "/v1/events/events_for_month":
+			c.EventsForMonth(writer, request)
+		default:
+			WriteErrorNotFound(writer)
+		}
+	case http.MethodPost:
+		switch request.RequestURI {
+		case "/v1/events/create_event":
+			c.CreateEvent(writer, request)
+		case "/v1/events/update_event":
+			c.UpdateEvent(writer, request)
+		default:
+			WriteErrorNotFound(writer)
+		}
 	default:
-		http.Error(writer, "несуществующий метод", http.StatusMethodNotAllowed)
+		WriteErrorMethodNotAllowed(writer)
 	}
+}
+
+func WriteResultOk(writer http.ResponseWriter, message string) {
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	writer.Write(SerializeResult(message))
+}
+
+func WriteResultCreated(writer http.ResponseWriter, message string) {
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusCreated)
+	writer.Write(SerializeResult(message))
+}
+
+func WriteErrorBadRequest(writer http.ResponseWriter, message string) {
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusBadRequest)
+	writer.Write(SerializeError(message))
+}
+
+func WriteErrorMethodNotAllowed(writer http.ResponseWriter) {
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusMethodNotAllowed)
+	writer.Write(SerializeError("method not allowed"))
+}
+
+func WriteErrorNotFound(writer http.ResponseWriter) {
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusMethodNotAllowed)
+	writer.Write(SerializeError("not found"))
 }
 
 func SerializeResult(message string) []byte {

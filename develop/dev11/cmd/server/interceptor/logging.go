@@ -7,10 +7,10 @@ import (
 )
 
 func LoggingInterceptor(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		start := time.Now()
 
-		next.ServeHTTP(response, request)
+		next.ServeHTTP(writer, request)
 
 		duration := time.Since(start)
 

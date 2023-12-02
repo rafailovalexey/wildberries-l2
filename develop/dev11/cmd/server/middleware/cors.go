@@ -5,18 +5,18 @@ import (
 )
 
 func CorsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-		response.Header().Add("Access-Control-Allow-Origin", "*")
-		response.Header().Add("Access-Control-Allow-Headers", "*")
-		response.Header().Add("Access-Control-Allow-Methods", "*")
-		response.Header().Add("Access-Control-Allow-Credentials", "true")
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Add("Access-Control-Allow-Origin", "*")
+		writer.Header().Add("Access-Control-Allow-Headers", "*")
+		writer.Header().Add("Access-Control-Allow-Methods", "*")
+		writer.Header().Add("Access-Control-Allow-Credentials", "true")
 
 		if request.Method == "OPTIONS" {
-			response.WriteHeader(http.StatusOK)
+			writer.WriteHeader(http.StatusOK)
 
 			return
 		}
 
-		next.ServeHTTP(response, request)
+		next.ServeHTTP(writer, request)
 	})
 }
