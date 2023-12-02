@@ -56,8 +56,10 @@ func (s *ServiceEvents) GetEventsForDay(eventsForDayDto *dto.EventsForDayDto) (*
 }
 
 func (s *ServiceEvents) GetEventsForWeek(eventsForWeekDto *dto.EventsForWeekDto) (*dto.EventsDto, error) {
+	days := 7
+
 	eventPeriodDto := dto.NewEventPeriodDto(
-		eventsForWeekDto.Date,
+		eventsForWeekDto.Date.AddDate(0, 0, -days),
 		eventsForWeekDto.Date,
 	)
 
@@ -71,8 +73,10 @@ func (s *ServiceEvents) GetEventsForWeek(eventsForWeekDto *dto.EventsForWeekDto)
 }
 
 func (s *ServiceEvents) GetEventsForMonth(eventsForMonthDto *dto.EventsForMonthDto) (*dto.EventsDto, error) {
+	months := 1
+
 	eventPeriodDto := dto.NewEventPeriodDto(
-		eventsForMonthDto.Date,
+		eventsForMonthDto.Date.AddDate(0, -months, 0),
 		eventsForMonthDto.Date,
 	)
 

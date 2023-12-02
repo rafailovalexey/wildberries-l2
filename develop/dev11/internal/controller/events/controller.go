@@ -2,6 +2,7 @@ package events
 
 import (
 	"encoding/json"
+	"fmt"
 	definition "github.com/emptyhopes/wildberries-l2-dev11/internal/controller"
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/converter"
 	dto "github.com/emptyhopes/wildberries-l2-dev11/internal/dto/events"
@@ -90,13 +91,15 @@ func (c *ControllerEvents) EventsForDay(writer http.ResponseWriter, request *htt
 		parsed,
 	)
 
-	eventDto, err := c.serviceEvents.GetEventsForDay(eventsForDayDto)
+	eventsDto, err := c.serviceEvents.GetEventsForDay(eventsForDayDto)
 
 	if err != nil {
 		WriteErrorBadRequest(writer, err.Error())
 	}
 
-	WriteResultOk(writer, eventDto.UserId)
+	fmt.Println(eventsDto)
+
+	WriteResultOk(writer, "")
 }
 
 func (c *ControllerEvents) EventsForWeek(writer http.ResponseWriter, request *http.Request) {
@@ -118,13 +121,15 @@ func (c *ControllerEvents) EventsForWeek(writer http.ResponseWriter, request *ht
 		parsed,
 	)
 
-	eventDto, err := c.serviceEvents.GetEventsForWeek(eventsForWeekDto)
+	eventsDto, err := c.serviceEvents.GetEventsForWeek(eventsForWeekDto)
 
 	if err != nil {
 		WriteErrorBadRequest(writer, err.Error())
 	}
 
-	WriteResultOk(writer, eventDto.UserId)
+	fmt.Println(eventsDto)
+
+	WriteResultOk(writer, "")
 }
 
 func (c *ControllerEvents) EventsForMonth(writer http.ResponseWriter, request *http.Request) {
@@ -146,13 +151,15 @@ func (c *ControllerEvents) EventsForMonth(writer http.ResponseWriter, request *h
 		parsed,
 	)
 
-	eventDto, err := c.serviceEvents.GetEventsForMonth(eventsForMonthDto)
+	eventsDto, err := c.serviceEvents.GetEventsForMonth(eventsForMonthDto)
 
 	if err != nil {
 		WriteErrorBadRequest(writer, err.Error())
 	}
 
-	WriteResultOk(writer, eventDto.UserId)
+	fmt.Println(eventsDto)
+
+	WriteResultOk(writer, "")
 }
 
 func (c *ControllerEvents) EventsHandler(writer http.ResponseWriter, request *http.Request) {
