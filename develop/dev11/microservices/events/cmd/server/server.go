@@ -48,16 +48,15 @@ func Run(controllerEvents controller.ControllerEventsInterface) {
 }
 
 func NotFound(w http.ResponseWriter, r *http.Request) {
-	WriteErrorNotFound(w)
+	WriteNotFoundError(w)
+
+	return
 }
 
-func WriteErrorNotFound(w http.ResponseWriter) {
+func WriteNotFoundError(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	w.Write(SerializeError("not found"))
-
-	return
-
 }
 
 func SerializeError(message string) []byte {

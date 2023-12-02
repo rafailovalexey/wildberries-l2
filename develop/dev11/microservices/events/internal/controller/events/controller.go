@@ -2,7 +2,6 @@ package events
 
 import (
 	"encoding/json"
-	"fmt"
 	definition "github.com/emptyhopes/wildberries-l2-dev11/internal/controller"
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/converter"
 	dto "github.com/emptyhopes/wildberries-l2-dev11/internal/dto/events"
@@ -10,6 +9,7 @@ import (
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/service"
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/validation"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -37,7 +37,7 @@ func (c *ControllerEvents) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	createEventRequest := &request.CreateEventRequest{}
 
 	if err := json.NewDecoder(r.Body).Decode(createEventRequest); err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
@@ -47,7 +47,7 @@ func (c *ControllerEvents) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	err := c.validationEvents.CreateEventValidation(createEventRequest)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
@@ -55,7 +55,7 @@ func (c *ControllerEvents) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	createEventDto, err := c.converterEvents.MapCreateEventRequestToCreateEventDto(createEventRequest)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
@@ -63,7 +63,7 @@ func (c *ControllerEvents) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	eventDto, err := c.serviceEvents.CreateEvent(createEventDto)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
@@ -71,14 +71,12 @@ func (c *ControllerEvents) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	eventResponse, err := c.converterEvents.MapEventDtoToEventResponse(eventDto)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
 
-	fmt.Println(eventResponse)
-
-	WriteResultCreated(w, "")
+	WriteResultCreated(w, eventResponse)
 
 	return
 }
@@ -87,7 +85,7 @@ func (c *ControllerEvents) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	updateEventRequest := &request.UpdateEventRequest{}
 
 	if err := json.NewDecoder(r.Body).Decode(updateEventRequest); err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
@@ -97,7 +95,7 @@ func (c *ControllerEvents) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	err := c.validationEvents.UpdateEventValidation(updateEventRequest)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
@@ -105,7 +103,7 @@ func (c *ControllerEvents) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	updateEventDto, err := c.converterEvents.MapUpdateEventRequestToUpdateEventDto(updateEventRequest)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
@@ -113,7 +111,7 @@ func (c *ControllerEvents) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	eventDto, err := c.serviceEvents.UpdateEvent(updateEventDto)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
@@ -121,14 +119,12 @@ func (c *ControllerEvents) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	eventResponse, err := c.converterEvents.MapEventDtoToEventResponse(eventDto)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
 
-	fmt.Println(eventResponse)
-
-	WriteResultOk(w, "")
+	WriteResultOk(w, eventResponse)
 }
 
 func (c *ControllerEvents) EventsForDay(w http.ResponseWriter, r *http.Request) {
@@ -140,12 +136,12 @@ func (c *ControllerEvents) EventsForDay(w http.ResponseWriter, r *http.Request) 
 	err := c.validationEvents.EventsForDayValidation(userId, date)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
 
-	parsed, _ := time.Parse("0000-00-00", date)
+	parsed, _ := time.Parse("2006-01-02", date)
 
 	eventsForDayDto := dto.NewEventsForDayDto(
 		userId,
@@ -155,7 +151,7 @@ func (c *ControllerEvents) EventsForDay(w http.ResponseWriter, r *http.Request) 
 	eventsDto, err := c.serviceEvents.GetEventsForDay(eventsForDayDto)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
@@ -163,14 +159,12 @@ func (c *ControllerEvents) EventsForDay(w http.ResponseWriter, r *http.Request) 
 	eventsResponse, err := c.converterEvents.MapEventsDtoToEventsResponse(eventsDto)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
 
-	fmt.Println(eventsResponse)
-
-	WriteResultOk(w, "")
+	WriteResultOk(w, eventsResponse)
 }
 
 func (c *ControllerEvents) EventsForWeek(w http.ResponseWriter, r *http.Request) {
@@ -182,12 +176,12 @@ func (c *ControllerEvents) EventsForWeek(w http.ResponseWriter, r *http.Request)
 	err := c.validationEvents.EventsForWeekValidation(userId, date)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
 
-	parsed, _ := time.Parse("0000-00-00", date)
+	parsed, _ := time.Parse("2006-01-02", date)
 
 	eventsForWeekDto := dto.NewEventsForWeekDto(
 		userId,
@@ -197,7 +191,7 @@ func (c *ControllerEvents) EventsForWeek(w http.ResponseWriter, r *http.Request)
 	eventsDto, err := c.serviceEvents.GetEventsForWeek(eventsForWeekDto)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
@@ -205,14 +199,12 @@ func (c *ControllerEvents) EventsForWeek(w http.ResponseWriter, r *http.Request)
 	eventsResponse, err := c.converterEvents.MapEventsDtoToEventsResponse(eventsDto)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
 
-	fmt.Println(eventsResponse)
-
-	WriteResultOk(w, "")
+	WriteResultOk(w, eventsResponse)
 }
 
 func (c *ControllerEvents) EventsForMonth(w http.ResponseWriter, r *http.Request) {
@@ -224,12 +216,12 @@ func (c *ControllerEvents) EventsForMonth(w http.ResponseWriter, r *http.Request
 	err := c.validationEvents.EventsForMonthValidation(userId, date)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
 
-	parsed, _ := time.Parse("0000-00-00", date)
+	parsed, _ := time.Parse("2006-01-02", date)
 
 	eventsForMonthDto := dto.NewEventsForMonthDto(
 		userId,
@@ -239,7 +231,7 @@ func (c *ControllerEvents) EventsForMonth(w http.ResponseWriter, r *http.Request
 	eventsDto, err := c.serviceEvents.GetEventsForMonth(eventsForMonthDto)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
@@ -247,95 +239,115 @@ func (c *ControllerEvents) EventsForMonth(w http.ResponseWriter, r *http.Request
 	eventsResponse, err := c.converterEvents.MapEventsDtoToEventsResponse(eventsDto)
 
 	if err != nil {
-		WriteErrorBadRequest(w, err.Error())
+		WriteBadRequestError(w, err.Error())
 
 		return
 	}
 
-	fmt.Println(eventsResponse)
-
-	WriteResultOk(w, "")
+	WriteResultOk(w, eventsResponse)
 }
 
 func (c *ControllerEvents) EventsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		switch r.RequestURI {
-		case "/v1/events/events_for_day":
+		switch {
+		case strings.Contains(r.RequestURI, "/v1/events/events_for_day"):
 			c.EventsForDay(w, r)
-		case "/v1/events/events_for_week":
+		case strings.Contains(r.RequestURI, "/v1/events/events_for_week"):
 			c.EventsForWeek(w, r)
-		case "/v1/events/events_for_month":
+		case strings.Contains(r.RequestURI, "/v1/events/events_for_month"):
 			c.EventsForMonth(w, r)
 		default:
-			WriteErrorNotFound(w)
+			WriteNotFoundError(w)
 
 			return
 		}
 	case http.MethodPost:
-		switch r.RequestURI {
-		case "/v1/events/create_event":
+		switch {
+		case strings.Contains(r.RequestURI, "/v1/events/create_event"):
 			c.CreateEvent(w, r)
-		case "/v1/events/update_event":
+		case strings.Contains(r.RequestURI, "/v1/events/update_event"):
 			c.UpdateEvent(w, r)
 		default:
-			WriteErrorNotFound(w)
+			WriteNotFoundError(w)
 
 			return
 		}
 	default:
-		WriteErrorMethodNotAllowed(w)
+		WriteMethodNotAllowedError(w)
 
 		return
 	}
 }
 
-func WriteResultOk(w http.ResponseWriter, message string) {
+func WriteResultOk(w http.ResponseWriter, data interface{}) {
+	result, err := SerializeResult(data)
+
+	if err != nil {
+		WriteInternalServerError(w)
+
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(SerializeResult(message))
+	w.Write(result)
 }
 
-func WriteResultCreated(w http.ResponseWriter, message string) {
+func WriteResultCreated(w http.ResponseWriter, data interface{}) {
+	result, err := SerializeResult(data)
+
+	if err != nil {
+		WriteInternalServerError(w)
+
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	w.Write(SerializeResult(message))
+	w.Write(result)
 }
 
-func WriteErrorBadRequest(w http.ResponseWriter, message string) {
+func WriteBadRequestError(w http.ResponseWriter, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
 	w.Write(SerializeError(message))
 }
 
-func WriteErrorMethodNotAllowed(w http.ResponseWriter) {
+func WriteMethodNotAllowedError(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	w.Write(SerializeError("method not allowed"))
 }
 
-func WriteErrorNotFound(w http.ResponseWriter) {
+func WriteNotFoundError(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusMethodNotAllowed)
+	w.WriteHeader(http.StatusNotFound)
 	w.Write(SerializeError("not found"))
 }
 
-func SerializeResult(message string) []byte {
+func WriteInternalServerError(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write(SerializeError("internal server error"))
+}
+
+func SerializeResult(data interface{}) ([]byte, error) {
 	type Result struct {
-		Result string `json:"result"`
+		Result interface{} `json:"result"`
 	}
 
 	e := &Result{
-		Result: message,
+		Result: data,
 	}
 
 	j, err := json.Marshal(e)
 
 	if err != nil {
-		return []byte(err.Error())
+		return nil, err
 	}
 
-	return j
+	return j, nil
 }
 
 func SerializeError(message string) []byte {

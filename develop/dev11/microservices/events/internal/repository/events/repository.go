@@ -230,6 +230,7 @@ func getEventsByUserIdAndPeriod(
 		eventModel := model.EventModel{}
 
 		err = rows.Scan(
+			&eventModel.Id,
 			&eventModel.UserId,
 			&eventModel.Date,
 			&eventModel.CreatedAt,

@@ -24,7 +24,7 @@ func AuthenticationMiddleware(next http.Handler) http.Handler {
 		key := r.Header.Get(header)
 
 		if key != token {
-			WriteErrorUnauthorized(w)
+			WriteUnauthorizedError(w)
 
 			return
 		}
@@ -33,7 +33,7 @@ func AuthenticationMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func WriteErrorUnauthorized(w http.ResponseWriter) {
+func WriteUnauthorizedError(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusUnauthorized)
 	w.Write(SerializeError("unauthorized"))
