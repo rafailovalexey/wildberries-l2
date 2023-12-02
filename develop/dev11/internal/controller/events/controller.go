@@ -2,10 +2,13 @@ package events
 
 import (
 	"encoding/json"
+	"fmt"
 	definition "github.com/emptyhopes/wildberries-l2-dev11/internal/controller"
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/converter"
+	dto "github.com/emptyhopes/wildberries-l2-dev11/internal/dto/events"
 	"github.com/emptyhopes/wildberries-l2-dev11/internal/validation"
 	"net/http"
+	"time"
 )
 
 type ControllerEvents struct {
@@ -26,23 +29,97 @@ func NewControllerEvents(
 }
 
 func (c *ControllerEvents) CreateEvent(writer http.ResponseWriter, request *http.Request) {
-	panic("implement me")
+	createEventDto := &dto.CreateEventDto{}
+
+	if err := json.NewDecoder(request.Body).Decode(createEventDto); err != nil {
+		WriteErrorBadRequest(writer, err.Error())
+
+		return
+	}
+
+	defer request.Body.Close()
+
+	fmt.Println(createEventDto)
 }
 
 func (c *ControllerEvents) UpdateEvent(writer http.ResponseWriter, request *http.Request) {
-	panic("implement me")
+	updateEventDto := &dto.UpdateEventDto{}
+
+	if err := json.NewDecoder(request.Body).Decode(updateEventDto); err != nil {
+		WriteErrorBadRequest(writer, err.Error())
+
+		return
+	}
+
+	defer request.Body.Close()
+
+	fmt.Println(updateEventDto)
 }
 
 func (c *ControllerEvents) EventsForDay(writer http.ResponseWriter, request *http.Request) {
-	panic("implement me")
+	query := request.URL.Query()
+
+	userId := query.Get("user_id")
+	date := query.Get("date")
+
+	err := c.validationEvents.EventsForDayValidation(userId, date)
+
+	if err != nil {
+		WriteErrorBadRequest(writer, err.Error())
+	}
+
+	parsed, _ := time.Parse("0000-00-00", date)
+
+	eventsForDayDto := dto.NewEventsForDayDto(
+		userId,
+		parsed,
+	)
+
+	fmt.Println(eventsForDayDto)
 }
 
 func (c *ControllerEvents) EventsForWeek(writer http.ResponseWriter, request *http.Request) {
-	panic("implement me")
+	query := request.URL.Query()
+
+	userId := query.Get("user_id")
+	date := query.Get("date")
+
+	err := c.validationEvents.EventsForWeekValidation(userId, date)
+
+	if err != nil {
+		WriteErrorBadRequest(writer, err.Error())
+	}
+
+	parsed, _ := time.Parse("0000-00-00", date)
+
+	eventsForWeekDto := dto.NewEventsForWeekDto(
+		userId,
+		parsed,
+	)
+
+	fmt.Println(eventsForWeekDto)
 }
 
 func (c *ControllerEvents) EventsForMonth(writer http.ResponseWriter, request *http.Request) {
-	panic("implement me")
+	query := request.URL.Query()
+
+	userId := query.Get("user_id")
+	date := query.Get("date")
+
+	err := c.validationEvents.EventsForMonthValidation(userId, date)
+
+	if err != nil {
+		WriteErrorBadRequest(writer, err.Error())
+	}
+
+	parsed, _ := time.Parse("0000-00-00", date)
+
+	eventsForMonthDto := dto.NewEventsForMonthDto(
+		userId,
+		parsed,
+	)
+
+	fmt.Println(eventsForMonthDto)
 }
 
 func (c *ControllerEvents) EventsHandler(writer http.ResponseWriter, request *http.Request) {
