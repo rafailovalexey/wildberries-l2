@@ -80,7 +80,7 @@ func (a *Application) Download(site string) error {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("ошибка: %s", response.Status)
+		return fmt.Errorf("ошибка %s", response.Status)
 	}
 
 	directory := parsed.Host
@@ -98,6 +98,10 @@ func (a *Application) Download(site string) error {
 
 		switch token {
 		case html.ErrorToken:
+			if tokenizer.Err().Error() == "EOF" {
+				return nil
+			}
+
 			return tokenizer.Err()
 		case html.StartTagToken, html.SelfClosingTagToken:
 			temporary := tokenizer.Token()
@@ -145,14 +149,10 @@ func (a *Application) DownloadResource(directory string, resource string) error 
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("ошибка при загрузки ресурса %s: %s", resource, response.Status)
+		return fmt.Errorf("ошибка при загрузки ресурса %s %s", resource, response.Status)
 	}
 
 	filepath := path.Join(directory, path.Base(parsed.Path))
-
-	if path.Base(parsed.Path) != "/" {
-		filepath += ".html"
-	}
 
 	file, err := os.Create(filepath)
 
