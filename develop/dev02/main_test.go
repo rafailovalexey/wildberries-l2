@@ -26,7 +26,7 @@ func TestUnpackString(t *testing.T) {
 		result := application.UnpackString(test.input)
 
 		if result != test.expected {
-			t.Errorf("Input: %s, Expected: %s, Result: %s", test.input, test.expected, result)
+			t.Errorf("input %s expected %s result %s", test.input, test.expected, result)
 		}
 	}
 }
