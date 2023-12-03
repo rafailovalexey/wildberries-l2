@@ -16,17 +16,17 @@ func TestGetFilePath(t *testing.T) {
 	expected := path.Join(wd, "temporary/test.txt")
 
 	if err != nil {
-		t.Errorf("unexpected error %v\n", err)
+		t.Errorf("unexpected error %v", err)
 	}
 
 	if filepath != expected {
-		t.Errorf("expected %s got %s\n", expected, filepath)
+		t.Errorf("expected %s got %s", expected, filepath)
 	}
 
 	_, err = files.GetFilePath("nonexistentdir/test.txt")
 
 	if err == nil {
-		t.Error("expected an error but got nil\n")
+		t.Error("expected an error but got nil")
 	}
 }
 
@@ -39,13 +39,13 @@ func TestGetSortedStringsWithArgumentNumeric(t *testing.T) {
 	result, err := application.GetSortedStringsWithArguments(data, flags)
 
 	if err != nil {
-		t.Errorf("unexpected error %v\n", err)
+		t.Errorf("unexpected error %v", err)
 	}
 
 	expected := []string{"1", "2", "3", "4"}
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("expected %v got %v\n", expected, result)
+		t.Errorf("expected %v got %v", expected, result)
 	}
 }
 
@@ -58,13 +58,13 @@ func TestGetSortedStringsWithArgumentReverse(t *testing.T) {
 	result, err := application.GetSortedStringsWithArguments(data, flags)
 
 	if err != nil {
-		t.Errorf("unexpected error %v\n", err)
+		t.Errorf("unexpected error %v", err)
 	}
 
 	expected := []string{"4", "3", "2", "1"}
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("expected %v got %v\n", expected, result)
+		t.Errorf("expected %v got %v", expected, result)
 	}
 }
 
@@ -87,7 +87,7 @@ func TestGetSortedStringsWithArgumentIgnoreTrailingMonth(t *testing.T) {
 	result, err := application.GetSortedStringsWithArguments(data, flags)
 
 	if err != nil {
-		t.Errorf("unexpected error %v\n", err)
+		t.Errorf("unexpected error %v", err)
 	}
 
 	expected := []string{
@@ -103,7 +103,7 @@ func TestGetSortedStringsWithArgumentIgnoreTrailingMonth(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("expected %v got %v\n", expected, result)
+		t.Errorf("expected %v got %v", expected, result)
 	}
 }
 
@@ -116,13 +116,13 @@ func TestGetSortedStringsWithArgumentIgnoreTrailingSpace(t *testing.T) {
 	result, err := application.GetSortedStringsWithArguments(data, flags)
 
 	if err != nil {
-		t.Errorf("unexpected error %v\n", err)
+		t.Errorf("unexpected error %v", err)
 	}
 
 	expected := []string{"1", "2", "3", "4"}
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("expected %v got %v\n", expected, result)
+		t.Errorf("expected %v got %v", expected, result)
 	}
 }
 
@@ -135,13 +135,13 @@ func TestGetSortedStringsWithArgumentColumnKey(t *testing.T) {
 	result, err := application.GetSortedStringsWithArguments(data, flags)
 
 	if err != nil {
-		t.Errorf("unexpected error %v\n", err)
+		t.Errorf("unexpected error %v", err)
 	}
 
 	expected := []string{"6", "7", "8", "9"}
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("expected %v got %v\n", expected, result)
+		t.Errorf("expected %v got %v", expected, result)
 	}
 }
 
@@ -154,13 +154,13 @@ func TestGetSortedStringsWithArgumentUnique(t *testing.T) {
 	result, err := application.GetSortedStringsWithArguments(data, flags)
 
 	if err != nil {
-		t.Errorf("unexpected error %v\n", err)
+		t.Errorf("unexpected error %v", err)
 	}
 
 	expected := []string{"1", "2", "3", "4"}
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("expected %v got %v\n", expected, result)
+		t.Errorf("expected %v got %v", expected, result)
 	}
 }
 
@@ -173,6 +173,6 @@ func TestGetSortedStringsWithArgumentCheck(t *testing.T) {
 	_, err := application.GetSortedStringsWithArguments(data, flags)
 
 	if err == nil {
-		t.Errorf("unexpected error %v\n", err)
+		t.Errorf("unexpected error %v", err)
 	}
 }

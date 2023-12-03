@@ -215,7 +215,7 @@ func (a *Application) Grep(data []string, pattern string, flags *Flags) ([]strin
 		} else if matched {
 			temporary = append(temporary, line)
 		} else if flags.Context > 0 && index+flags.Context < len(data) {
-			temporary = append(temporary, data[index:index+flags.Context+1]...)
+			temporary = append(temporary, data[index:index+flags.Context]...)
 		}
 	}
 
