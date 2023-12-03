@@ -63,6 +63,10 @@ func (f *Files) GetFilePath(file string) (string, error) {
 
 	filepath := path.Join(wd, file)
 
+	if _, err = os.Stat(filepath); os.IsNotExist(err) {
+		return "", err
+	}
+
 	return filepath, nil
 }
 
@@ -224,7 +228,7 @@ type ApplicationInterface interface {
 	CheckSortedStrings([]string) bool
 	GetNumericValue(string) int
 	GetNumericAndSuffix(string) (int, string)
-	GetSortColumnKey(string, int) string
+	GetColumnKey([]string, int) []string
 	GetMonthValue(string) int
 }
 
@@ -292,13 +296,13 @@ func (a *Application) GetSortedStringsWithArguments(
 		temporary = a.GetStringsWithRemoveTrailingSpace(temporary)
 	}
 
+	if flags.ColumnKey > 0 {
+		temporary = a.GetColumnKey(temporary, flags.ColumnKey)
+	}
+
 	function := func(i, j int) bool {
 		if flags.Month {
 			return a.GetMonthValue(temporary[i]) < a.GetMonthValue(temporary[j])
-		}
-
-		if flags.ColumnKey > 0 {
-			return a.GetSortColumnKey(temporary[i], flags.ColumnKey) < a.GetSortColumnKey(temporary[j], flags.ColumnKey)
 		}
 
 		return temporary[i] < temporary[j]
@@ -400,14 +404,22 @@ func (a *Application) GetNumericAndSuffix(input string) (int, string) {
 	return value, suffix
 }
 
-func (a *Application) GetSortColumnKey(str string, column int) string {
-	columns := strings.Fields(str)
+func (a *Application) GetColumnKey(data []string, column int) []string {
+	temporary := make([]string, 0)
 
-	if column > 0 && column <= len(columns) {
-		return columns[column-1]
+	for _, line := range data {
+		columns := strings.Fields(line)
+
+		if column != 0 && column <= len(columns) {
+			temporary = append(temporary, columns[column-1])
+
+			continue
+		}
+
+		temporary = append(temporary, "")
 	}
 
-	return str
+	return temporary
 }
 
 func (a *Application) GetMonthValue(month string) int {
