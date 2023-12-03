@@ -76,8 +76,6 @@ func (a *Application) CutInputStrings(scanner *bufio.Scanner, flags *Flags) {
 		line := scanner.Text()
 
 		if flags.Separated && !strings.Contains(line, flags.Delimiter) {
-			fmt.Printf("\n")
-
 			continue
 		}
 
@@ -86,9 +84,7 @@ func (a *Application) CutInputStrings(scanner *bufio.Scanner, flags *Flags) {
 		if flags.Fields != "" {
 			temporary := make([]string, 0)
 
-			field := strings.Split(flags.Fields, ",")
-
-			for _, v := range field {
+			for _, v := range fields {
 				index := a.ParseNumberColumns(v)
 
 				if index > 0 && index <= len(fields) {
@@ -96,16 +92,10 @@ func (a *Application) CutInputStrings(scanner *bufio.Scanner, flags *Flags) {
 				}
 			}
 
-			fmt.Printf("%s\n", strings.Join(temporary, flags.Delimiter))
-
-			fmt.Printf("\n")
-
-			continue
+			if len(temporary) != 0 {
+				fmt.Printf("%s\n", strings.Join(temporary, flags.Delimiter))
+			}
 		}
-
-		fmt.Printf("%s\n", strings.Join(fields, flags.Delimiter))
-
-		fmt.Printf("\n")
 	}
 }
 
