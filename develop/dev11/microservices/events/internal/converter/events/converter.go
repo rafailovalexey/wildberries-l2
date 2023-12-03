@@ -24,10 +24,10 @@ func (c *ConverterEvents) MapCreateEventRequestToCreateEventDto(createEventReque
 		return nil, err
 	}
 
-	createEventDto := &dto.CreateEventDto{
-		UserId: createEventRequest.UserId,
-		Date:   parsed,
-	}
+	createEventDto := dto.NewCreateEventDto(
+		createEventRequest.UserId,
+		parsed,
+	)
 
 	return createEventDto, nil
 }
@@ -39,90 +39,25 @@ func (c *ConverterEvents) MapUpdateEventRequestToUpdateEventDto(updateEventReque
 		return nil, err
 	}
 
-	updateEventDto := &dto.UpdateEventDto{
-		UserId: updateEventRequest.UserId,
-		Date:   parsed,
-	}
+	updateEventDto := dto.NewUpdateEventDto(
+		updateEventRequest.Id,
+		updateEventRequest.UserId,
+		parsed,
+	)
 
 	return updateEventDto, nil
-}
-
-func (c *ConverterEvents) MapEventDtoToEventModel(eventDto *dto.EventDto) (*model.EventModel, error) {
-	eventModel := &model.EventModel{
-		UserId:    eventDto.UserId,
-		Date:      eventDto.Date,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	return eventModel, nil
-}
-
-func (c *ConverterEvents) MapEventsDtoToEventsModel(eventsDto *dto.EventsDto) (*model.EventsModel, error) {
-	eventsModel := make(model.EventsModel, len(*eventsDto))
-
-	for index, value := range *eventsDto {
-		eventModel, err := c.MapEventDtoToEventModel(&value)
-
-		if err != nil {
-			return nil, err
-		}
-
-		eventsModel[index] = *eventModel
-	}
-
-	return &eventsModel, nil
-}
-
-func (c *ConverterEvents) MapCreateEventDtoToEventModel(createEventDto *dto.CreateEventDto) (*model.EventModel, error) {
-	eventModel := &model.EventModel{
-		UserId:    createEventDto.UserId,
-		Date:      createEventDto.Date,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	return eventModel, nil
-}
-
-func (c *ConverterEvents) MapUpdateEventDtoToEventModel(updateEventDto *dto.UpdateEventDto) (*model.EventModel, error) {
-	eventModel := &model.EventModel{
-		UserId:    updateEventDto.UserId,
-		Date:      updateEventDto.Date,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	return eventModel, nil
 }
 
 func (c *ConverterEvents) MapEventModelToEventDto(eventModel *model.EventModel) (*dto.EventDto, error) {
-	eventDto := &dto.EventDto{
-		UserId:    eventModel.UserId,
-		Date:      eventModel.Date,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
+	eventDto := dto.NewEventDto(
+		eventModel.Id,
+		eventModel.UserId,
+		eventModel.Date,
+		eventModel.CreatedAt,
+		eventModel.UpdatedAt,
+	)
 
 	return eventDto, nil
-}
-
-func (c *ConverterEvents) MapEventModelToCreateEventDto(eventModel *model.EventModel) (*dto.CreateEventDto, error) {
-	createEventDto := &dto.CreateEventDto{
-		UserId: eventModel.UserId,
-		Date:   eventModel.Date,
-	}
-
-	return createEventDto, nil
-}
-
-func (c *ConverterEvents) MapEventModelToUpdateEventDto(eventModel *model.EventModel) (*dto.UpdateEventDto, error) {
-	updateEventDto := &dto.UpdateEventDto{
-		UserId: eventModel.UserId,
-		Date:   eventModel.Date,
-	}
-
-	return updateEventDto, nil
 }
 
 func (c *ConverterEvents) MapEventsModelToEventsDto(eventsModel *model.EventsModel) (*dto.EventsDto, error) {
@@ -142,12 +77,13 @@ func (c *ConverterEvents) MapEventsModelToEventsDto(eventsModel *model.EventsMod
 }
 
 func (c *ConverterEvents) MapEventDtoToEventResponse(eventDto *dto.EventDto) (*response.EventResponse, error) {
-	eventResponse := &response.EventResponse{
-		UserId:    eventDto.UserId,
-		Date:      eventDto.Date,
-		CreatedAt: eventDto.CreatedAt,
-		UpdatedAt: eventDto.UpdatedAt,
-	}
+	eventResponse := response.NewEventResponse(
+		eventDto.Id,
+		eventDto.UserId,
+		eventDto.Date,
+		eventDto.CreatedAt,
+		eventDto.UpdatedAt,
+	)
 
 	return eventResponse, nil
 }

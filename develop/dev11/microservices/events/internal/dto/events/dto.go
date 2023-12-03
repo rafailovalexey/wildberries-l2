@@ -3,6 +3,7 @@ package events
 import "time"
 
 type EventDto struct {
+	Id        int64
 	UserId    string
 	Date      time.Time
 	CreatedAt time.Time
@@ -37,17 +38,20 @@ type CreateEventDto struct {
 }
 
 type UpdateEventDto struct {
+	Id     int64
 	UserId string
 	Date   time.Time
 }
 
 func NewEventDto(
+	id int64,
 	userId string,
 	date time.Time,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) *EventDto {
 	return &EventDto{
+		Id:        id,
 		UserId:    userId,
 		Date:      date,
 		CreatedAt: createdAt,
@@ -106,10 +110,12 @@ func NewCreateEventDto(
 }
 
 func NewUpdateEventDto(
+	id int64,
 	userId string,
 	date time.Time,
 ) *UpdateEventDto {
 	return &UpdateEventDto{
+		Id:     id,
 		UserId: userId,
 		Date:   date,
 	}

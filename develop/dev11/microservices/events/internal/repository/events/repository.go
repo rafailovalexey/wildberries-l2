@@ -40,13 +40,7 @@ func (r *RepositoryEvents) CreateEvent(
 	pool := r.database.GetPool()
 	defer pool.Close()
 
-	createEventModel, err := r.converterEvents.MapCreateEventDtoToEventModel(createEventDto)
-
-	if err != nil {
-		return nil, err
-	}
-
-	eventModel, err := insertEvent(pool, createEventModel)
+	eventModel, err := insertEvent(pool, createEventDto)
 
 	if err != nil {
 		return nil, err
@@ -63,7 +57,7 @@ func (r *RepositoryEvents) CreateEvent(
 
 func insertEvent(
 	pool *pgxpool.Pool,
-	eventModel *model.EventModel,
+	createEventDto *dto.CreateEventDto,
 ) (*model.EventModel, error) {
 	query := `
        INSERT INTO events (
@@ -81,28 +75,28 @@ func insertEvent(
        RETURNING id, user_id, date, created_at, updated_at;
    `
 
-	createdEvent := &model.EventModel{}
+	eventModel := &model.EventModel{}
 
 	err := pool.QueryRow(
 		context.Background(),
 		query,
-		eventModel.UserId,
-		eventModel.Date,
-		eventModel.CreatedAt,
-		eventModel.UpdatedAt,
+		createEventDto.UserId,
+		createEventDto.Date,
+		time.Now(),
+		time.Now(),
 	).Scan(
-		&createdEvent.Id,
-		&createdEvent.UserId,
-		&createdEvent.Date,
-		&createdEvent.CreatedAt,
-		&createdEvent.UpdatedAt,
+		&eventModel.Id,
+		&eventModel.UserId,
+		&eventModel.Date,
+		&eventModel.CreatedAt,
+		&eventModel.UpdatedAt,
 	)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return createdEvent, nil
+	return eventModel, nil
 }
 
 func (r *RepositoryEvents) UpdateEvent(updateEventDto *dto.UpdateEventDto) (*dto.EventDto, error) {
@@ -112,13 +106,7 @@ func (r *RepositoryEvents) UpdateEvent(updateEventDto *dto.UpdateEventDto) (*dto
 	pool := r.database.GetPool()
 	defer pool.Close()
 
-	updateEventModel, err := r.converterEvents.MapUpdateEventDtoToEventModel(updateEventDto)
-
-	if err != nil {
-		return nil, err
-	}
-
-	eventModel, err := updateEvent(pool, updateEventModel)
+	eventModel, err := updateEvent(pool, updateEventDto)
 
 	if err != nil {
 		return nil, err
@@ -135,38 +123,40 @@ func (r *RepositoryEvents) UpdateEvent(updateEventDto *dto.UpdateEventDto) (*dto
 
 func updateEvent(
 	pool *pgxpool.Pool,
-	eventModel *model.EventModel,
+	updateEventDto *dto.UpdateEventDto,
 ) (*model.EventModel, error) {
 	query := `
        UPDATE events
 		SET
-		    date = $1,
-		    updated_at = $2
-       WHERE user_id = $3
+			user_id = $1,
+		    date = $2,
+		    updated_at = $3
+       WHERE id = $4
        RETURNING id, user_id, date, created_at, updated_at;
    `
 
-	updatedEvent := &model.EventModel{}
+	eventModel := &model.EventModel{}
 
 	err := pool.QueryRow(
 		context.Background(),
 		query,
-		eventModel.Date,
+		updateEventDto.UserId,
+		updateEventDto.Date,
 		time.Now(),
-		eventModel.UserId,
+		updateEventDto.Id,
 	).Scan(
-		&updatedEvent.Id,
-		&updatedEvent.UserId,
-		&updatedEvent.Date,
-		&updatedEvent.CreatedAt,
-		&updatedEvent.UpdatedAt,
+		&eventModel.Id,
+		&eventModel.UserId,
+		&eventModel.Date,
+		&eventModel.CreatedAt,
+		&eventModel.UpdatedAt,
 	)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return updatedEvent, nil
+	return eventModel, nil
 }
 
 func (r *RepositoryEvents) GetEventsByUserIdAndPeriod(
