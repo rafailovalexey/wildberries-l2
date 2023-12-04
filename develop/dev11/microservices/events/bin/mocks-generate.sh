@@ -20,7 +20,7 @@ for mock_file in $MOCKS_FILES; do
 
   mkdir -p "$DIRECTORY/$MOCKS_OUTPUT_DIRECTORY"
 
-  echo "Generating mock file for $mock_file..."
+  echo "Generating mock file for $mock_file"
 
   mockgen -source="$mock_file" -destination="$OUTPUT_PATH"
 
