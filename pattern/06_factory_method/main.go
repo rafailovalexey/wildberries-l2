@@ -24,13 +24,13 @@ import "fmt"
 
 // Products
 
-type Product interface {
+type ProductInterface interface {
 	GetName() string
 }
 
 type ProductA struct{}
 
-var _ Product = (*ProductA)(nil)
+var _ ProductInterface = (*ProductA)(nil)
 
 func (p *ProductA) GetName() string {
 	return "Product A"
@@ -38,7 +38,7 @@ func (p *ProductA) GetName() string {
 
 type ProductB struct{}
 
-var _ Product = (*ProductB)(nil)
+var _ ProductInterface = (*ProductB)(nil)
 
 func (p *ProductB) GetName() string {
 	return "Product B"
@@ -46,32 +46,32 @@ func (p *ProductB) GetName() string {
 
 // Creators
 
-type Creator interface {
-	CreateProduct() Product
+type CreatorInterface interface {
+	CreateProduct() ProductInterface
 }
 
-type ConcreteCreatorA struct{}
+type CreatorA struct{}
 
-var _ Creator = (*ConcreteCreatorA)(nil)
+var _ CreatorInterface = (*CreatorA)(nil)
 
-func (c *ConcreteCreatorA) CreateProduct() Product {
+func (c *CreatorA) CreateProduct() ProductInterface {
 	return &ProductA{}
 }
 
-type ConcreteCreatorB struct{}
+type CreatorB struct{}
 
-var _ Creator = (*ConcreteCreatorB)(nil)
+var _ CreatorInterface = (*CreatorB)(nil)
 
-func (c *ConcreteCreatorB) CreateProduct() Product {
+func (c *CreatorB) CreateProduct() ProductInterface {
 	return &ProductB{}
 }
 
 func main() {
-	creatorA := ConcreteCreatorA{}
+	creatorA := CreatorA{}
 	productA := creatorA.CreateProduct()
 	fmt.Printf("%s\n", productA.GetName())
 
-	creatorB := ConcreteCreatorB{}
+	creatorB := CreatorB{}
 	productB := creatorB.CreateProduct()
 	fmt.Printf("%s\n", productB.GetName())
 }

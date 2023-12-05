@@ -32,7 +32,7 @@ type Product struct {
 	Part2 string
 }
 
-type Builder interface {
+type BuilderInterface interface {
 	BuildPart1()
 	BuildPart2()
 
@@ -56,10 +56,10 @@ func (b *ConcreteBuilder) GetProduct() Product {
 }
 
 type Director struct {
-	builder Builder
+	builder BuilderInterface
 }
 
-func NewDirector(builder Builder) *Director {
+func NewDirector(builder BuilderInterface) *Director {
 	return &Director{builder: builder}
 }
 
