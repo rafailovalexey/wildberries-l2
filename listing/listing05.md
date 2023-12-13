@@ -21,15 +21,15 @@ func test() *customError {
 
 func main() {
 	var err error
-	
+
 	err = test()
-	
+
 	if err != nil {
 		println("error")
-		
+
 		return
 	}
-	
+
 	println("ok")
 }
 ```
@@ -40,6 +40,4 @@ func main() {
 error
 ```
 
-```go
-
-```
+Тип возвращаемого значения в функции `test` имплементирует интерфейс `Error`, интерфейс `Error` не равен `nil` поэтому мы попадаем внутрь блока условий

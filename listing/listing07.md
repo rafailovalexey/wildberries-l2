@@ -26,7 +26,7 @@ func asChan(vs ...int) <-chan int {
 
 func merge(a, b <-chan int) <-chan int {
 	c := make(chan int)
-	
+
 	go func() {
 		for {
 			select {
@@ -37,7 +37,7 @@ func merge(a, b <-chan int) <-chan int {
 			}
 		}
 	}()
-	
+
 	return c
 }
 
@@ -64,12 +64,7 @@ func main() {
 6
 7
 8
-0
-0
-0
-...
+...0 до прерывания программы
 ```
 
-```go
-
-```
+Не был закрыт канал `c` после записи в него из двух каналов и была заблокирована из-за цикла `for` + `select` горутина в функции `merge`
