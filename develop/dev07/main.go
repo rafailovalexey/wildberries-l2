@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"time"
 )
 
@@ -39,7 +39,7 @@ import (
 		sig(1*time.Minute),
 	)
 
-	fmt.Printf(“done after %v\n”, time.Since(start))
+	log.Printf(“done after %v\n”, time.Since(start))
 */
 
 type ApplicationInterface interface {
@@ -75,7 +75,7 @@ func main() {
 		signal(1*time.Minute),
 	)
 
-	fmt.Printf("done after %v\n", time.Since(start))
+	log.Printf("done after %v\n", time.Since(start))
 }
 
 func (a *Application) or(channels ...<-chan interface{}) <-chan interface{} {

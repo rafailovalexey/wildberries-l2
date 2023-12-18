@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 )
 
 func main() {
@@ -9,5 +9,5 @@ func main() {
 
 	var b []int = a[1:4]
 
-	fmt.Println(b)
+	log.Printf("%d\n", b)
 }

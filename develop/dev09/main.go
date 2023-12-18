@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"golang.org/x/net/html"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -50,7 +51,7 @@ func main() {
 	site := flag.Arg(0)
 
 	if site == "" {
-		fmt.Printf("пожалуйста, укажите URL сайта для загрузки\n")
+		log.Printf("indicate the url of the download site\n")
 
 		os.Exit(1)
 	}
@@ -58,7 +59,7 @@ func main() {
 	err := application.Download(site)
 
 	if err != nil {
-		fmt.Printf("ошибка загрузки сайта: %v\n", err)
+		log.Printf("site loading error %v\n", err)
 
 		os.Exit(1)
 	}
@@ -80,7 +81,7 @@ func (a *Application) Download(site string) error {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("ошибка %s", response.Status)
+		return fmt.Errorf("error %s", response.Status)
 	}
 
 	directory := parsed.Host
@@ -113,7 +114,7 @@ func (a *Application) Download(site string) error {
 					err = a.DownloadResource(directory, resource)
 
 					if err != nil {
-						fmt.Printf("ошибка загрузки ресурса %s: %v\n", resource, err)
+						log.Printf("resource loading error %s: %v\n", resource, err)
 					}
 				}
 			}
@@ -149,7 +150,7 @@ func (a *Application) DownloadResource(directory string, resource string) error 
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("ошибка при загрузки ресурса %s %s", resource, response.Status)
+		return log.Errorf("resource loading error %s %s", resource, response.Status)
 	}
 
 	filepath := path.Join(directory, path.Base(parsed.Path))
@@ -168,7 +169,7 @@ func (a *Application) DownloadResource(directory string, resource string) error 
 		return err
 	}
 
-	fmt.Printf("ресурс %s успешно загружен\n", resource)
+	log.Printf("resource %s loaded successfully\n", resource)
 
 	return nil
 }

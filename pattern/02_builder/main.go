@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"log"
+)
 
 /*
 	Реализовать паттерн «строитель».
@@ -76,6 +78,6 @@ func main() {
 
 	product := director.Construct()
 
-	fmt.Printf("%s\n", product.Part1)
-	fmt.Printf("%s\n", product.Part2)
+	log.Printf("%s\n", product.Part1)
+	log.Printf("%s\n", product.Part2)
 }

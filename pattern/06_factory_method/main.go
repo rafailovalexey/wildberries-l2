@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"log"
+)
 
 /*
 	Реализовать паттерн «фабричный метод».
@@ -69,9 +71,9 @@ func (c *CreatorB) CreateProduct() ProductInterface {
 func main() {
 	creatorA := CreatorA{}
 	productA := creatorA.CreateProduct()
-	fmt.Printf("%s\n", productA.GetName())
+	log.Printf("%s\n", productA.GetName())
 
 	creatorB := CreatorB{}
 	productB := creatorB.CreateProduct()
-	fmt.Printf("%s\n", productB.GetName())
+	log.Printf("%s\n", productB.GetName())
 }

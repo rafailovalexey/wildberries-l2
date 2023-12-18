@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"sort"
 	"strings"
 )
@@ -40,7 +40,7 @@ func main() {
 	anagrams := application.FindAnagrams(words)
 
 	for key, value := range anagrams {
-		fmt.Println("множество анаграмм для", key, ":", strings.Join(value, ", "))
+		log.Printf("many anagrams for %s %s\n", key, strings.Join(value, ", "))
 	}
 }
 

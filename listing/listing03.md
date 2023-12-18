@@ -4,7 +4,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -17,8 +17,8 @@ func Foo() error {
 func main() {
 	err := Foo()
 	
-	fmt.Println(err)
-	fmt.Println(err == nil)
+	log.Printf("%v\n", err)
+	log.Printf("%v\n", err == nil)
 }
 ```
 

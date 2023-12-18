@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 )
 
 func test() (x int) {
@@ -27,6 +27,6 @@ func anotherTest() int {
 }
 
 func main() {
-	fmt.Println(test())
-	fmt.Println(anotherTest())
+	log.Printf("%d\n", test())
+	log.Printf("%d\n", anotherTest())
 }

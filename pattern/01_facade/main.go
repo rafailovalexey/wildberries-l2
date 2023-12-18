@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"log"
+)
 
 /*
 	Реализовать паттерн «фасад».
@@ -30,21 +32,21 @@ import "fmt"
 type SubsystemA struct{}
 
 func (s *SubsystemA) OperationA1() {
-	fmt.Printf("%s\n", "SubsystemA: OperationA1")
+	log.Printf("%s\n", "SubsystemA: OperationA1")
 }
 
 func (s *SubsystemA) OperationA2() {
-	fmt.Printf("%s\n", "SubsystemA: OperationA2")
+	log.Printf("%s\n", "SubsystemA: OperationA2")
 }
 
 type SubsystemB struct{}
 
 func (s *SubsystemB) OperationB1() {
-	fmt.Printf("%s\n", "SubsystemB: OperationB1")
+	log.Printf("%s\n", "SubsystemB: OperationB1")
 }
 
 func (s *SubsystemB) OperationB2() {
-	fmt.Printf("%s\n", "SubsystemB: OperationB2")
+	log.Printf("%s\n", "SubsystemB: OperationB2")
 }
 
 type Facade struct {

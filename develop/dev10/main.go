@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -60,7 +61,7 @@ func main() {
 	port := flag.Arg(1)
 
 	if host == "" || port == "" {
-		fmt.Printf("usage: [--timeout=<timeout>] <host> <port>\n")
+		log.Printf("usage: [--timeout=<timeout>] <host> <port>\n")
 
 		os.Exit(1)
 	}
@@ -74,7 +75,7 @@ func (a *Application) Connection(address string, flags *Flags) {
 	connection, err := net.DialTimeout("tcp", address, flags.Timeout)
 
 	if err != nil {
-		fmt.Printf("error connecting to the server %v\n", err)
+		log.Printf("error connecting to the server %v\n", err)
 
 		os.Exit(1)
 	}
@@ -92,12 +93,12 @@ func (a *Application) Connection(address string, flags *Flags) {
 			length, err := connection.Read(buffer)
 
 			if err != nil {
-				fmt.Printf("error reading from the server %v\n", err)
+				log.Printf("error reading from the server %v\n", err)
 
 				break
 			}
 
-			fmt.Print(string(buffer[:length]))
+			log.Printf("%s\n", string(buffer[:length]))
 		}
 	}()
 
@@ -107,7 +108,7 @@ func (a *Application) Connection(address string, flags *Flags) {
 		length, err := os.Stdin.Read(buffer)
 
 		if err != nil {
-			fmt.Printf("error reading from STDIN %v\n", err)
+			log.Printf("error reading from stdin %v\n", err)
 
 			break
 		}
@@ -115,7 +116,7 @@ func (a *Application) Connection(address string, flags *Flags) {
 		_, err = connection.Write(buffer[:length])
 
 		if err != nil {
-			fmt.Printf("error writing to the server %v\n", err)
+			log.Printf("error writing to the server %v\n", err)
 
 			break
 		}
@@ -123,8 +124,8 @@ func (a *Application) Connection(address string, flags *Flags) {
 
 	select {
 	case <-done:
-		fmt.Printf("connection closed by user\n")
+		log.Printf("connection closed by user\n")
 	case <-time.After(flags.Timeout):
-		fmt.Printf("timeout reached, connection closed\n")
+		log.Printf("timeout reached, connection closed\n")
 	}
 }

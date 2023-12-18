@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"log"
+)
 
 /*
 	Реализовать паттерн «посетитель».
@@ -62,11 +64,11 @@ type Visitor struct{}
 var _ VisitorInterface = (*Visitor)(nil)
 
 func (v *Visitor) VisitElementA(elementA *ElementA) {
-	fmt.Printf("%s\n", elementA.Name)
+	log.Printf("%s\n", elementA.Name)
 }
 
 func (v *Visitor) VisitElementB(elementB *ElementB) {
-	fmt.Printf("%d\n", elementB.Number)
+	log.Printf("%d\n", elementB.Number)
 }
 
 func main() {

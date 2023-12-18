@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"log"
+)
 
 /*
 	Реализовать паттерн «состояние».
@@ -60,8 +62,8 @@ func (s *StateB) handle() string {
 
 func main() {
 	context := &Context{state: &StateA{}}
-	fmt.Println(context.Request())
+	log.Printf("%v\n", context.Request())
 
 	context.SetState(&StateB{})
-	fmt.Println(context.Request())
+	log.Printf("%v\n", context.Request())
 }

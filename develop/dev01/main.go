@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/beevik/ntp"
+	"log"
 	"os"
 	"time"
 )
@@ -38,7 +39,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("точное время (с использованием NTP): %s\n", ntpTime.Format(time.RFC3339))
+	log.Printf("точное время (с использованием NTP): %s\n", ntpTime.Format(time.RFC3339))
 }
 
 func (a *Application) GetTimeNtp() (time.Time, error) {

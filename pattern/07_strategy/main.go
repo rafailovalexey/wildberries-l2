@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 /*
 	Реализовать паттерн «стратегия».
@@ -64,8 +67,8 @@ func main() {
 	cart := &ShoppingCart{}
 
 	cart.SetPaymentStrategy(&CreditCardPayment{})
-	fmt.Printf("%s\n", cart.MakePayment(100.50))
+	log.Printf("%s\n", cart.MakePayment(100.50))
 
 	cart.SetPaymentStrategy(&QiwiPayment{})
-	fmt.Printf("%s\n", cart.MakePayment(75.25))
+	log.Printf("%s\n", cart.MakePayment(75.25))
 }

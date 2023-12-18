@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"unicode"
@@ -36,14 +36,14 @@ var _ ApplicationInterface = (*Application)(nil)
 func main() {
 	application := &Application{}
 
-	fmt.Println(application.UnpackString("a4bc2d5e") == "aaaabccddddde")
-	fmt.Println(application.UnpackString("abcd") == "abcd")
-	fmt.Println(application.UnpackString("45") == "")
-	fmt.Println(application.UnpackString("") == "")
+	log.Printf("%v\n", application.UnpackString("a4bc2d5e") == "aaaabccddddde")
+	log.Printf("%v\n", application.UnpackString("abcd") == "abcd")
+	log.Printf("%v\n", application.UnpackString("45") == "")
+	log.Printf("%v\n", application.UnpackString("") == "")
 
-	fmt.Println(application.UnpackString("qwe\\4\\5") == "qwe45")
-	fmt.Println(application.UnpackString("qwe\\45") == "qwe44444")
-	fmt.Println(application.UnpackString("qwe\\\\5") == "qwe\\\\\\\\\\")
+	log.Printf("%v\n", application.UnpackString("qwe\\4\\5") == "qwe45")
+	log.Printf("%v\n", application.UnpackString("qwe\\45") == "qwe44444")
+	log.Printf("%v\n", application.UnpackString("qwe\\\\5") == "qwe\\\\\\\\\\")
 }
 
 func (a *Application) UnpackString(str string) string {

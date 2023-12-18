@@ -1,6 +1,6 @@
 package main
 
-import "fmt"
+import "log"
 
 /*
 	Реализовать паттерн «комманда».
@@ -56,7 +56,7 @@ type Receiver struct{}
 var _ ReceiverInterface = (*Receiver)(nil)
 
 func (r *Receiver) Action() {
-	fmt.Printf("action\n")
+	log.Printf("action\n")
 }
 
 // Invoker

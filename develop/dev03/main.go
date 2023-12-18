@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"regexp"
@@ -245,7 +246,7 @@ func main() {
 	err := files.InitializeFiles()
 
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 
 		os.Exit(1)
 	}
@@ -253,7 +254,7 @@ func main() {
 	data, err := files.GetFileData(files.input)
 
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 
 		os.Exit(1)
 	}
@@ -266,7 +267,7 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 
 		os.Exit(1)
 	}
@@ -274,7 +275,7 @@ func main() {
 	err = files.WriteFileData(files.output, result)
 
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 
 		os.Exit(1)
 	}

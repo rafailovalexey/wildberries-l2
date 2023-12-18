@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"log"
+)
 
 /*
 	Реализовать паттерн «цепочка вызовов».
@@ -46,7 +48,7 @@ type HandlerA struct {
 
 func (h *HandlerA) HandleRequest(request int) bool {
 	if request <= 10 {
-		fmt.Printf("HandlerA %d\n", request)
+		log.Printf("handler a %d\n", request)
 
 		return true
 	}
@@ -64,7 +66,7 @@ type HandlerB struct {
 
 func (h *HandlerB) HandleRequest(request int) bool {
 	if request > 10 && request <= 20 {
-		fmt.Printf("HandlerB %d\n", request)
+		log.Printf("handler b %d\n", request)
 
 		return true
 	}
@@ -86,7 +88,7 @@ func main() {
 
 	for _, request := range requests {
 		if !handlerA.HandleRequest(request) {
-			fmt.Printf("no handler can process the request %d\n", request)
+			log.Printf("no handler can process the request %d\n", request)
 		}
 	}
 }

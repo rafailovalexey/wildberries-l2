@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -45,6 +45,6 @@ func main() {
 	c := merge(a, b)
 
 	for v := range c {
-		fmt.Println(v)
+		log.Printf("%d\n", v)
 	}
 }

@@ -4,7 +4,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 	
 	modifySlice(s)
 	
-	fmt.Println(s)
+	log.Printf("%s\n", s)
 }
 
 func modifySlice(i []string) {

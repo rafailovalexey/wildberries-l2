@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"regexp"
@@ -169,7 +170,7 @@ func main() {
 	err := files.InitializeFiles()
 
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 
 		os.Exit(1)
 	}
@@ -177,7 +178,7 @@ func main() {
 	data, err := files.GetFileData(files.input)
 
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 
 		os.Exit(1)
 	}
@@ -189,7 +190,7 @@ func main() {
 	data, err = application.Grep(data, pattern, flags)
 
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 
 		os.Exit(1)
 	}
@@ -247,15 +248,15 @@ func (a *Application) PrintFileData(
 ) {
 	for i, v := range data {
 		if flags.Count {
-			fmt.Printf("%d\n", len(data))
+			log.Printf("%d\n", len(data))
 
 			break
 		}
 
 		if flags.LineNumbers {
-			fmt.Printf("%d:%s\n", i+1, v)
+			log.Printf("%d:%s\n", i+1, v)
 		} else {
-			fmt.Printf("%s\n", v)
+			log.Printf("%s\n", v)
 		}
 	}
 }

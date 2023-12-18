@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 )
@@ -65,7 +66,7 @@ func main() {
 	application.CutInputStrings(scanner, flags)
 
 	if err := scanner.Err(); err != nil {
-		fmt.Printf("ошибка чтения стандартного ввода %v\n", err)
+		log.Printf("error reading standard input %v\n", err)
 
 		os.Exit(1)
 	}
@@ -93,7 +94,7 @@ func (a *Application) CutInputStrings(scanner *bufio.Scanner, flags *Flags) {
 			}
 
 			if len(temporary) != 0 {
-				fmt.Printf("%s\n", strings.Join(temporary, flags.Delimiter))
+				log.Printf("%s\n", strings.Join(temporary, flags.Delimiter))
 			}
 		}
 	}
