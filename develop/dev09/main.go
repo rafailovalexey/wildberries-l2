@@ -150,7 +150,7 @@ func (a *Application) DownloadResource(directory string, resource string) error 
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return log.Errorf("resource loading error %s %s", resource, response.Status)
+		return fmt.Errorf("resource loading error %s %s", resource, response.Status)
 	}
 
 	filepath := path.Join(directory, path.Base(parsed.Path))
